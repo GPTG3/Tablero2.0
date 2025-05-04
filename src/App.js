@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "./App.css";
 import Login from "./components/Login/Login";
-import logo from "./logo.svg";
+import Disponibilidad from "./components/Disponibilidad/Disponibilidad";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -21,11 +21,11 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>¡Bienvenido, {user.email}!</p>
+        <h1>Bienvenido, {user.email}</h1>
         <button className="logout-button" onClick={handleLogout}>
           Cerrar Sesión
         </button>
+        <Disponibilidad />
       </header>
     </div>
   );
