@@ -1,10 +1,27 @@
-.App {
-  text-align: center;
+body {
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--background);
+  margin: 0;
+  padding: 0;
+  color: var(--text-primary);
+  line-height: 1.6;
 }
 
+/* General Styles */
+.App {
+  text-align: center;
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background-color: var(--background);
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+/* Logo Styles */
 .App-logo {
   height: 40vmin;
   pointer-events: none;
+  margin-bottom: 1.5rem;
+  filter: drop-shadow(0 4px 12px var(--shadow-lg));
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -13,26 +30,78 @@
   }
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* Header Styles */
+.App-header {
+  background: linear-gradient(145deg, var(--header-bg), #0f172a);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: var(--text-light);
+  padding: 2.5rem;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+}
+
+.App-header::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 25% 25%, rgba(79, 70, 229, 0.15) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* Link Styles */
+.App-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+  position: relative;
+  padding-bottom: 2px;
+  transition: var(--transition);
+}
+
+.App-link:hover {
+  color: var(--accent-hover);
+}
+
+.App-link::after {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: 0;
+  left: 0;
+  background-color: var(--accent-hover);
+  transition: var(--transition);
+}
+
+.App-link:hover::after {
+  width: 100%;
+}
+
+/* Responsive Styles */
+@media screen and (max-width: 768px) {
+  .App-header {
+    padding: 1.5rem;
+  }
+  
+  .App-logo {
+    height: 30vmin;
   }
 }
