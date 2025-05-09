@@ -5,7 +5,8 @@ Este proyecto fue creado con [Create React App](https://github.com/facebook/crea
 ## Scripts Disponibles
 
 En el directorio del proyecto, puedes ejecutar:
-
+### `npm install`
+### `npm install react-router-dom`
 ### `npm start`
 
 Ejecuta la aplicación en modo de desarrollo.\
