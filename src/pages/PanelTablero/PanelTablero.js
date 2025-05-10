@@ -4,7 +4,6 @@ import './PanelTablero.css';
 const PanelTablero = ({ profesor }) => {
   const [mensaje, setMensaje] = useState('');
   const [estado, setEstado] = useState('');
-  const [vistaPrevia, setVistaPrevia] = useState('');
   const [opcionesEstado, setOpcionesEstado] = useState([]); // Nueva variable para las opciones de estado
 
   useEffect(() => {
@@ -29,74 +28,39 @@ const PanelTablero = ({ profesor }) => {
   const manejarCambioMensaje = (e) => setMensaje(e.target.value);
   const manejarCambioEstado = (e) => setEstado(e.target.value);
 
-  const generarVistaPrevia = async () => {
-  if (!mensaje && !estado) {
-    alert('Por favor, completa al menos uno de los campos');
-    return;
-  }
-
-  const vista = mensaje ? mensaje : estado;
-  setVistaPrevia(vista);
-
-  // Guardar en el historial
-  try {
-    const response = await fetch('http://localhost:3001/historial', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        profesor, // Se asume que el nombre del profesor se pasa como prop
-        estado: vista,
-      }),
-    });
-
-    if (response.ok) {
-      alert('El estado se ha registrado en el historial correctamente');
-    } else {
-      const errorData = await response.json();
-      alert(`Error al registrar el estado en el historial: ${errorData.error}`);
-    }
-  } catch (error) {
-    console.error('Error al registrar el estado en el historial:', error);
-    alert('Ocurrió un error al intentar registrar el estado en el historial');
-  }
-};
-
   const guardarEstado = async () => {
-  if (!mensaje && !estado) {
-    alert('Por favor, completa al menos uno de los campos');
-    return;
-  }
-
-  try {
-    const nuevoEstado = estado || mensaje; // Determinar el estado a guardar
-    const response = await fetch('http://localhost:3001/estados', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ estado: nuevoEstado }),
-    });
-
-    if (response.ok) {
-      alert('Estado guardado correctamente');
-      setOpcionesEstado((prevOpciones) => [...prevOpciones, nuevoEstado]); // Agregar el nuevo estado a la lista
-      limpiarCampos();
-    } else {
-      const errorData = await response.json();
-      alert(`Error al guardar el estado: ${errorData.error}`);
+    if (!mensaje && !estado) {
+      alert('Por favor, completa al menos uno de los campos');
+      return;
     }
-  } catch (error) {
-    console.error('Error al guardar el estado:', error);
-    alert('Ocurrió un error al intentar guardar el estado');
-  }
-};
+
+    try {
+      const nuevoEstado = estado || mensaje; // Determinar el estado a guardar
+      const response = await fetch('http://localhost:3001/estados', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ estado: nuevoEstado }),
+      });
+
+      if (response.ok) {
+        alert('Estado guardado correctamente');
+        setOpcionesEstado((prevOpciones) => [...prevOpciones, nuevoEstado]); // Agregar el nuevo estado a la lista
+        limpiarCampos();
+      } else {
+        const errorData = await response.json();
+        alert(`Error al guardar el estado: ${errorData.error}`);
+      }
+    } catch (error) {
+      console.error('Error al guardar el estado:', error);
+      alert('Ocurrió un error al intentar guardar el estado');
+    }
+  };
 
   const limpiarCampos = () => {
     setMensaje('');
     setEstado('');
-    setVistaPrevia('');
   };
 
   return (
@@ -132,14 +96,13 @@ const PanelTablero = ({ profesor }) => {
         </div>
         
         <div className="botones-container">
-          <button className="boton-enviar" onClick={generarVistaPrevia}>Enviar</button>
           <button className="boton-guardar" onClick={guardarEstado}>Guardar estado</button>
           <button className="boton-limpiar" onClick={limpiarCampos}>Limpiar</button>
         </div>
         
         <div className="previsualizacion">
           <p className="texto-previsualizacion">
-            {vistaPrevia ? vistaPrevia : 'Previsualización del mensaje'}
+            {mensaje || 'Previsualización del mensaje'}
           </p>
         </div>
       </div>
