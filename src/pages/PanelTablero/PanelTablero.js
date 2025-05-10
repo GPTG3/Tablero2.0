@@ -1,10 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './PanelTablero.css';
 
 const PanelTablero = ({ profesor }) => {
   const [mensaje, setMensaje] = useState('');
   const [estado, setEstado] = useState('');
   const [vistaPrevia, setVistaPrevia] = useState('');
+  const [opcionesEstado, setOpcionesEstado] = useState([]); // Nueva variable para las opciones de estado
+
+  useEffect(() => {
+    // Obtener las opciones de estado desde la base de datos
+    const fetchEstados = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/estados');
+        if (response.ok) {
+          const data = await response.json();
+          setOpcionesEstado(data.map((item) => item.estado)); // Extraer solo los valores de estado
+        } else {
+          console.error('Error al obtener los estados:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Error al obtener los estados:', error);
+      }
+    };
+
+    fetchEstados();
+  }, []); // Ejecutar solo una vez al montar el componente
 
   const manejarCambioMensaje = (e) => setMensaje(e.target.value);
   const manejarCambioEstado = (e) => setEstado(e.target.value);
@@ -18,14 +38,35 @@ const PanelTablero = ({ profesor }) => {
     setVistaPrevia(vista);
   };
 
-  const guardarEstado = () => {
-    if (!mensaje && !estado) {
-      alert('Por favor, completa al menos uno de los campos');
-      return;
+  const guardarEstado = async () => {
+  if (!mensaje && !estado) {
+    alert('Por favor, completa al menos uno de los campos');
+    return;
+  }
+
+  try {
+    const nuevoEstado = estado || mensaje; // Determinar el estado a guardar
+    const response = await fetch('http://localhost:3001/estados', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ estado: nuevoEstado }),
+    });
+
+    if (response.ok) {
+      alert('Estado guardado correctamente');
+      setOpcionesEstado((prevOpciones) => [...prevOpciones, nuevoEstado]); // Agregar el nuevo estado a la lista
+      limpiarCampos();
+    } else {
+      const errorData = await response.json();
+      alert(`Error al guardar el estado: ${errorData.error}`);
     }
-    // Aquí iría la lógica para guardar el estado
-    alert('Estado guardado correctamente');
-  };
+  } catch (error) {
+    console.error('Error al guardar el estado:', error);
+    alert('Ocurrió un error al intentar guardar el estado');
+  }
+};
 
   const limpiarCampos = () => {
     setMensaje('');
@@ -47,10 +88,11 @@ const PanelTablero = ({ profesor }) => {
             onChange={manejarCambioEstado}
           >
             <option value="">Seleccionar estado</option>
-            <option value="Disponible">Disponible</option>
-            <option value="Ocupado">Ocupado</option>
-            <option value="En clase">En clase</option>
-            <option value="En reunión">En reunión</option>
+            {opcionesEstado.map((opcion, index) => (
+              <option key={index} value={opcion}>
+                {opcion}
+              </option>
+            ))}
           </select>
         </div>
         

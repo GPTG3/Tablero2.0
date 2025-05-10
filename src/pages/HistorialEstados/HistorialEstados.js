@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './HistorialEstados.css';
+
+
 
 const obtenerFechaActual = () => {
   const ahora = new Date();
@@ -36,6 +38,20 @@ const HistorialEstados = () => {
       fecha: obtenerFechaActual(),
     },
   ]);
+
+  useEffect(() => {
+    const fetchHistorial = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/historial', { method: 'GET' });
+        const data = await response.json();
+        setHistorial(data);
+      } catch (error) {
+        console.error('Error al obtener el historial:', error);
+      }
+    };
+
+    fetchHistorial();
+  }, []);
 
   const [estadoSeleccionado, setEstadoSeleccionado] = useState(null);
 

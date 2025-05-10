@@ -35,6 +35,48 @@ app.post('/historial', (req, res) => {
   });
 });
 
+app.post('/estados', (req, res) => {
+  const { estado } = req.body;
+
+  if (!estado) {
+    return res.status(400).json({ error: 'El campo estado es requerido' });
+  }
+
+  // Verificar si el estado ya existe
+  const checkQuery = 'SELECT COUNT(*) AS count FROM estados WHERE estado = ?';
+  db.get(checkQuery, [estado], (err, row) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+
+    if (row.count > 0) {
+      return res.status(400).json({ error: 'El estado ya existe en la base de datos' });
+    }
+
+    // Insertar el nuevo estado si no existe
+    const insertQuery = 'INSERT INTO estados (estado) VALUES (?)';
+    db.run(insertQuery, [estado], function (err) {
+      if (err) {
+        res.status(500).json({ error: err.message });
+      } else {
+        res.status(201).json({ estado });
+      }
+    });
+  });
+});
+
+app.get('/estados', (req, res) => {
+  const query = 'SELECT estado FROM estados';
+
+  db.all(query, [], (err, rows) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+    } else {
+      res.json(rows);
+    }
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`Servidor backend escuchando en http://localhost:${PORT}`);
 });
