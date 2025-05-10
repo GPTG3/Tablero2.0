@@ -5,7 +5,8 @@ Este proyecto fue creado con [Create React App](https://github.com/facebook/crea
 ## Scripts Disponibles
 
 En el directorio del proyecto, puedes ejecutar:
-
+### `npm install`
+### `npm install react-router-dom`
 ### `npm start`
 
 Ejecuta la aplicación en modo de desarrollo.\
@@ -16,4 +17,4 @@ También puedes ver errores de lint en la consola.
 
 ### `npm run dev` (Backend)
 
-Desde la carpeta del backend, ejecuta este comando para iniciar el servidor en modo de desarrollo.
+Desde la carpeta del backend, ejecuta este comando para iniciar el servidor en modo de desarrollo. La base de dato se iniciará en el puerto 3001 (Ajustado en el archivo index.js)
