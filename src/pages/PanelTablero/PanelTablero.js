@@ -29,14 +29,39 @@ const PanelTablero = ({ profesor }) => {
   const manejarCambioMensaje = (e) => setMensaje(e.target.value);
   const manejarCambioEstado = (e) => setEstado(e.target.value);
 
-  const generarVistaPrevia = () => {
-    if (!mensaje && !estado) {
-      alert('Por favor, completa al menos uno de los campos');
-      return;
+  const generarVistaPrevia = async () => {
+  if (!mensaje && !estado) {
+    alert('Por favor, completa al menos uno de los campos');
+    return;
+  }
+
+  const vista = mensaje ? mensaje : estado;
+  setVistaPrevia(vista);
+
+  // Guardar en el historial
+  try {
+    const response = await fetch('http://localhost:3001/historial', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        profesor, // Se asume que el nombre del profesor se pasa como prop
+        estado: vista,
+      }),
+    });
+
+    if (response.ok) {
+      alert('El estado se ha registrado en el historial correctamente');
+    } else {
+      const errorData = await response.json();
+      alert(`Error al registrar el estado en el historial: ${errorData.error}`);
     }
-    const vista = mensaje ? mensaje : estado;
-    setVistaPrevia(vista);
-  };
+  } catch (error) {
+    console.error('Error al registrar el estado en el historial:', error);
+    alert('Ocurrió un error al intentar registrar el estado en el historial');
+  }
+};
 
   const guardarEstado = async () => {
   if (!mensaje && !estado) {
