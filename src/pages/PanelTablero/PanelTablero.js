@@ -17,7 +17,9 @@ const PanelTablero = () => {
     // Obtener las opciones de estado desde la base de datos
     const fetchEstados = async () => {
       try {
-        const response = await fetch("http://localhost:3001/estados");
+        const response = await fetch(
+          `http://localhost:3001/estados?profesor=${profesor}`
+        );
         if (response.ok) {
           const data = await response.json();
           setOpcionesEstado(data.map((item) => item.estado)); // Extraer solo los valores de estado
@@ -48,7 +50,10 @@ const PanelTablero = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ estado: nuevoEstado }),
+        body: JSON.stringify({
+          estado: nuevoEstado,
+          profesor, // Incluir el correo del usuario logueado
+        }),
       });
 
       if (response.ok) {
