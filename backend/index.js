@@ -46,18 +46,18 @@ app.get('/historial', authenticateToken, (req, res) => {
 });
 
 app.post("/historial", (req, res) => {
-  const { profesor, estado } = req.body;
+  const { profesor, estado, fecha } = req.body;
 
-  if (!profesor || !estado) {
-    return res.status(400).json({ error: "Profesor y estado son requeridos" });
+  if (!profesor || !estado || !fecha) {
+    return res.status(400).json({ error: "Profesor, estado y fecha son requeridos" });
   }
 
-  const query = "INSERT INTO historial (profesor, estado) VALUES (?, ?)";
-  db.run(query, [profesor, estado], function (err) {
+  const query = "INSERT INTO historial (profesor, estado, fecha) VALUES (?, ?, ?)";
+  db.run(query, [profesor, estado, fecha], function (err) {
     if (err) {
       res.status(500).json({ error: err.message });
     } else {
-      res.status(201).json({ id: this.lastID, profesor, estado });
+      res.status(201).json({ message: "Registro guardado correctamente" });
     }
   });
 });
