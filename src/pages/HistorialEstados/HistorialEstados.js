@@ -41,11 +41,30 @@ const HistorialEstados = () => {
   useEffect(() => {
     const fetchEstadosGuardados = async () => {
       try {
-        const response = await fetch("http://localhost:3001/estados", {
-          method: "GET",
-        });
+        const token = localStorage.getItem("token"); // Obtener el token del almacenamiento local
+        if (!token) {
+          console.error("No se encontró un token de autenticación");
+          return;
+        }
+
+        const decodedToken = JSON.parse(atob(token.split(".")[1])); // Decodificar el token JWT
+        const profesor = decodedToken.mail; // Obtener el correo del profesor
+
+        const response = await fetch(
+          `http://localhost:3001/estados?profesor=${profesor}`,
+          {
+            method: "GET",
+          }
+        );
+
         const data = await response.json();
-        setEstadosGuardados(data.map((item) => item.estado)); // Extraer solo los valores de estado
+
+        if (Array.isArray(data)) {
+          setEstadosGuardados(data.map((item) => item.estado)); // Extraer solo los valores de estado
+        } else {
+          console.error("La respuesta no es un arreglo:", data);
+          setEstadosGuardados([]); // Manejar el caso donde no sea un arreglo
+        }
       } catch (error) {
         console.error("Error al obtener los estados guardados:", error);
       }

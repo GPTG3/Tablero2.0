@@ -12,7 +12,6 @@ const PanelTablero = () => {
   const profesor = token ? jwtDecode(token).mail : null;
 
   useEffect(() => {
-    console.log("Correo del profesor:", profesor);
 
     // Obtener las opciones de estado desde la base de datos
     const fetchEstados = async () => {

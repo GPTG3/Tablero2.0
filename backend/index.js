@@ -87,9 +87,7 @@ app.get("/estados", (req, res) => {
   const { profesor } = req.query;
 
   if (!profesor) {
-    return res
-      .status(400)
-      .json({ error: "El correo del profesor es requerido" });
+    return res.status(400).json({ error: "El correo del profesor es requerido" });
   }
 
   const query = "SELECT estado FROM estados WHERE profesor = ?";
@@ -97,7 +95,7 @@ app.get("/estados", (req, res) => {
     if (err) {
       res.status(500).json({ error: err.message });
     } else {
-      res.json(rows);
+      res.json(rows); // Asegúrate de que se devuelva un arreglo
     }
   });
 });
