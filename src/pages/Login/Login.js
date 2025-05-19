@@ -96,7 +96,7 @@ function Login({ onLogin }) {
               {isLoading ? "Iniciando..." : "Iniciar Sesión"}
             </button>
             <Link to="/register" className="forgot-password">
-              ¿Olvidaste tu contraseña?
+              Crear cuenta
             </Link>
           </div>
         </form>
