@@ -12,7 +12,6 @@ const PanelTablero = () => {
   const profesor = token ? jwtDecode(token).mail : null;
 
   useEffect(() => {
-
     // Obtener las opciones de estado desde la base de datos
     const fetchEstados = async () => {
       try {
@@ -75,7 +74,14 @@ const PanelTablero = () => {
       return;
     }
 
-    const fechaActual = new Date().toISOString().replace("T", " ").slice(0, 19);
+    const fechaActual = new Date()
+      .toLocaleString("en-CA", {
+        timeZone: "America/Santiago",
+        hour12: false,
+      })
+      .replace(",", "")
+      .replace("/", "-")
+      .replace("/", "-");
 
     try {
       const response = await fetch("http://localhost:3001/historial", {

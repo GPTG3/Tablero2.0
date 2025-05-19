@@ -119,17 +119,12 @@ const HistorialEstados = () => {
           className="history-card"
           onClick={() => abrirPopup(estado)}
         >
-          <div className="history-title">{estado.nombre}</div>
-          <span
-            className={`history-status ${
-              estadosGuardados.includes(estado.estado) ? "saved" : "not-saved"
-            }`}
-          >
-            {estadosGuardados.includes(estado.estado)
-              ? "Guardado"
-              : "No guardado"}
-          </span>
-          <div className="history-datetime">{estado.fecha}</div>
+          <div className="history-title">
+            <strong>Estado:</strong> {estado.estado}
+          </div>
+          <div className="history-datetime">
+            <strong>Fecha:</strong> {estado.fecha}
+          </div>
         </div>
       ))}
 
