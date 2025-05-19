@@ -1,34 +1,57 @@
-import React, { useState } from 'react';
-import './Login.css';
-import logo from '../../logo.svg';
+import React, { useState } from "react";
+import "./Login.css";
+import logo from "../../logo.svg";
 
 function Login({ onLogin }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    
+    setError("");
+
     if (!email || !password) {
-      setError('Por favor completa todos los campos');
+      setError("Por favor completa todos los campos");
       return;
     }
-    
+
     setIsLoading(true);
-    
+
+    // USUARIO HARDOCODEADO: a@a:a
+
     try {
-      // Aquí puedes conectar con tu backend
-      // Ejemplo simulado:
-      setTimeout(() => {
-        onLogin({ email });
-        setIsLoading(false);
-      }, 1500);
+      const response = await fetch("http://localhost:3001/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ mail: email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem("token", data.token); // Guarda el token en localStorage
+        onLogin(data.user); // Llama a la función onLogin con los datos del usuario
+      } else {
+        setError(data.error || "Error al iniciar sesión. Inténtalo de nuevo.");
+      }
     } catch (err) {
-      setError('Error al iniciar sesión. Inténtalo de nuevo.');
+      setError("Error al conectar con el servidor. Inténtalo de nuevo.");
+    } finally {
       setIsLoading(false);
+    }
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError(
+        "No se encontró un token de autenticación. Por favor, inicia sesión."
+      );
+      return;
+    } else {
+      console.log("Token de autenticación:", token);
     }
   };
 
@@ -39,10 +62,10 @@ function Login({ onLogin }) {
           <h1>Bienvenido profesor</h1>
           <p>Ingresa tus credenciales para continuar</p>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="login-form">
           {error && <div className="login-error">{error}</div>}
-          
+
           <div className="form-group">
             <label htmlFor="email">Correo Electrónico</label>
             <input
@@ -54,7 +77,7 @@ function Login({ onLogin }) {
               required
             />
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="password">Contraseña</label>
             <input
@@ -66,16 +89,14 @@ function Login({ onLogin }) {
               required
             />
           </div>
-          
+
           <div className="form-footer">
-            <button 
-              type="submit" 
-              className="login-button"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Iniciando...' : 'Iniciar Sesión'}
+            <button type="submit" className="login-button" disabled={isLoading}>
+              {isLoading ? "Iniciando..." : "Iniciar Sesión"}
             </button>
-            <a href="#" className="forgot-password">¿Olvidaste tu contraseña?</a>
+            <a href="#" className="forgot-password">
+              ¿Olvidaste tu contraseña?
+            </a>
           </div>
         </form>
       </div>
