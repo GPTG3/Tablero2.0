@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import './HistorialEstados.css';
+import React, { useState, useEffect } from "react";
+import "./HistorialEstados.css";
 
 const HistorialEstados = () => {
   const [historial, setHistorial] = useState([]);
@@ -10,11 +10,27 @@ const HistorialEstados = () => {
   useEffect(() => {
     const fetchHistorial = async () => {
       try {
-        const response = await fetch('http://localhost:3001/historial', { method: 'GET' });
-        const data = await response.json();
-        setHistorial(data);
+        const token = localStorage.getItem("token"); // Obtener el token del almacenamiento local
+        if (!token) {
+          console.error("No se encontró un token de autenticación");
+          return;
+        }
+
+        const response = await fetch("http://localhost:3001/historial", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`, // Enviar el token en el encabezado
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setHistorial(data);
+        } else {
+          console.error("Error al obtener el historial:", response.statusText);
+        }
       } catch (error) {
-        console.error('Error al obtener el historial:', error);
+        console.error("Error al obtener el historial:", error);
       }
     };
 
@@ -25,11 +41,13 @@ const HistorialEstados = () => {
   useEffect(() => {
     const fetchEstadosGuardados = async () => {
       try {
-        const response = await fetch('http://localhost:3001/estados', { method: 'GET' });
+        const response = await fetch("http://localhost:3001/estados", {
+          method: "GET",
+        });
         const data = await response.json();
         setEstadosGuardados(data.map((item) => item.estado)); // Extraer solo los valores de estado
       } catch (error) {
-        console.error('Error al obtener los estados guardados:', error);
+        console.error("Error al obtener los estados guardados:", error);
       }
     };
 
@@ -43,16 +61,16 @@ const HistorialEstados = () => {
     if (!estadoSeleccionado) return;
 
     try {
-      const response = await fetch('http://localhost:3001/estados', {
-        method: 'POST',
+      const response = await fetch("http://localhost:3001/estados", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ estado: estadoSeleccionado.estado }),
       });
 
       if (response.ok) {
-        alert('Estado guardado correctamente en la base de datos');
+        alert("Estado guardado correctamente en la base de datos");
         setEstadosGuardados((prev) => [...prev, estadoSeleccionado.estado]); // Actualizar la lista de estados guardados
         cerrarPopup();
       } else {
@@ -60,8 +78,8 @@ const HistorialEstados = () => {
         alert(`Error al guardar el estado: ${errorData.error}`);
       }
     } catch (error) {
-      console.error('Error al guardar el estado en la base de datos:', error);
-      alert('Ocurrió un error al intentar guardar el estado');
+      console.error("Error al guardar el estado en la base de datos:", error);
+      alert("Ocurrió un error al intentar guardar el estado");
     }
   };
 
@@ -72,17 +90,25 @@ const HistorialEstados = () => {
 
   return (
     <div className="history-container">
-      <h2 className="text-xl font-bold mb-4 text-center">Historial de Estados</h2>
+      <h2 className="text-xl font-bold mb-4 text-center">
+        Historial de Estados
+      </h2>
 
       {historial.map((estado) => (
-        <div key={estado.id} className="history-card" onClick={() => abrirPopup(estado)}>
+        <div
+          key={estado.id}
+          className="history-card"
+          onClick={() => abrirPopup(estado)}
+        >
           <div className="history-title">{estado.nombre}</div>
           <span
             className={`history-status ${
-              estadosGuardados.includes(estado.estado) ? 'saved' : 'not-saved'
+              estadosGuardados.includes(estado.estado) ? "saved" : "not-saved"
             }`}
           >
-            {estadosGuardados.includes(estado.estado) ? 'Guardado' : 'No guardado'}
+            {estadosGuardados.includes(estado.estado)
+              ? "Guardado"
+              : "No guardado"}
           </span>
           <div className="history-datetime">{estado.fecha}</div>
         </div>
@@ -99,7 +125,10 @@ const HistorialEstados = () => {
             </p>
             <div className="popup-botones">
               {!estadosGuardados.includes(estadoSeleccionado.estado) && (
-                <button className="guardar" onClick={guardarEstadoEnBaseDeDatos}>
+                <button
+                  className="guardar"
+                  onClick={guardarEstadoEnBaseDeDatos}
+                >
                   Guardar
                 </button>
               )}

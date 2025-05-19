@@ -31,6 +31,15 @@ db.serialize(() => {
     )
   `);
 
+  // Tabla usuarios
+  db.run(`
+    CREATE TABLE IF NOT EXISTS usuarios (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      mail TEXT NOT NULL UNIQUE,
+      password TEXT NOT NULL
+    )
+  `);
+
 });
 
 module.exports = db;
