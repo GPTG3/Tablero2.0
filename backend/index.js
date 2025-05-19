@@ -106,6 +106,26 @@ app.get("/estados", (req, res) => {
   });
 });
 
+app.post("/register", (req, res) => {
+  const { mail, password } = req.body;
+
+  if (!mail || !password) {
+    return res.status(400).json({ error: "Correo y contraseña son requeridos" });
+  }
+
+  const query = "INSERT INTO usuarios (mail, password) VALUES (?, ?)";
+  db.run(query, [mail, password], function (err) {
+    if (err) {
+      if (err.message.includes("UNIQUE constraint failed")) {
+        return res.status(400).json({ error: "El correo ya está registrado" });
+      }
+      return res.status(500).json({ error: err.message });
+    }
+
+    res.status(201).json({ message: "Usuario registrado exitosamente" });
+  });
+});
+
 app.post("/login", (req, res) => {
   const { mail, password } = req.body;
 

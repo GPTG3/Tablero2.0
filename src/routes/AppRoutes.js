@@ -1,6 +1,7 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "../pages/Login/Login";
+import Register from "../pages/Register/Register";
 import PanelTablero from "../pages/PanelTablero/PanelTablero";
 import HistorialEstados from "../pages/HistorialEstados/HistorialEstados";
 import LandingPage from "../pages/LandingPage/LandingPage";
@@ -18,6 +19,12 @@ function AppRoutes({ user, handleLogin }) {
       <Route
         path="/login"
         element={!user ? <Login onLogin={handleLogin} /> : <Navigate to="/panel" />}
+      />
+
+      {/* Ruta para registro */}
+      <Route
+        path="/register"
+        element={!user ? <Register /> : <Navigate to="/panel" />}
       />
 
       {/* Ruta para el panel */}

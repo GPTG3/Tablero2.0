@@ -1,29 +1,33 @@
 import React, { useState } from "react";
-import "./Login.css";
-import logo from "../../logo.svg";
-import { Link } from "react-router-dom";
+import "./Register.css";
 
-function Login({ onLogin }) {
+function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
 
-    if (!email || !password) {
+    if (!email || !password || !confirmPassword) {
       setError("Por favor completa todos los campos");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Las contraseñas no coinciden");
       return;
     }
 
     setIsLoading(true);
 
-    // USUARIO HARDOCODEADO: a@a:a
-
     try {
-      const response = await fetch("http://localhost:3001/login", {
+      const response = await fetch("http://localhost:3001/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -34,38 +38,31 @@ function Login({ onLogin }) {
       const data = await response.json();
 
       if (response.ok) {
-        localStorage.setItem("token", data.token); // Guarda el token en localStorage
-        onLogin(data.user); // Llama a la función onLogin con los datos del usuario
+        setSuccess("Usuario registrado exitosamente");
+        setEmail("");
+        setPassword("");
+        setConfirmPassword("");
       } else {
-        setError(data.error || "Error al iniciar sesión. Inténtalo de nuevo.");
+        setError(data.error || "Error al registrar el usuario. Inténtalo de nuevo.");
       }
     } catch (err) {
       setError("Error al conectar con el servidor. Inténtalo de nuevo.");
     } finally {
       setIsLoading(false);
     }
-
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setError(
-        "No se encontró un token de autenticación. Por favor, inicia sesión."
-      );
-      return;
-    } else {
-      console.log("Token de autenticación:", token);
-    }
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
-        <div className="login-header">
-          <h1>Bienvenido profesor</h1>
-          <p>Ingresa tus credenciales para continuar</p>
+    <div className="register-container">
+      <div className="register-card">
+        <div className="register-header">
+          <h1>Registrar Usuario</h1>
+          <p>Completa el formulario para crear una cuenta</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="login-form">
-          {error && <div className="login-error">{error}</div>}
+        <form onSubmit={handleSubmit} className="register-form">
+          {error && <div className="register-error">{error}</div>}
+          {success && <div className="register-success">{success}</div>}
 
           <div className="form-group">
             <label htmlFor="email">Correo Electrónico</label>
@@ -91,13 +88,22 @@ function Login({ onLogin }) {
             />
           </div>
 
+          <div className="form-group">
+            <label htmlFor="confirmPassword">Confirmar Contraseña</label>
+            <input
+              type="password"
+              id="confirmPassword"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="********"
+              required
+            />
+          </div>
+
           <div className="form-footer">
-            <button type="submit" className="login-button" disabled={isLoading}>
-              {isLoading ? "Iniciando..." : "Iniciar Sesión"}
+            <button type="submit" className="register-button" disabled={isLoading}>
+              {isLoading ? "Registrando..." : "Registrar"}
             </button>
-            <Link to="/register" className="forgot-password">
-              ¿Olvidaste tu contraseña?
-            </Link>
           </div>
         </form>
       </div>
@@ -105,4 +111,4 @@ function Login({ onLogin }) {
   );
 }
 
-export default Login;
+export default Register;
