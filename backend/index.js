@@ -32,10 +32,11 @@ app.use(cors()); // Habilitar CORS
 app.use(express.json());
 
 // Rutas existentes
-app.get('/historial', authenticateToken, (req, res) => {
+app.get("/historial", authenticateToken, (req, res) => {
   const { mail } = req.user; // Obtener el correo del usuario desde el token
 
-  const query = 'SELECT * FROM historial WHERE profesor = ? ORDER BY fecha DESC';
+  const query =
+    "SELECT * FROM historial WHERE profesor = ? ORDER BY fecha DESC";
   db.all(query, [mail], (err, rows) => {
     if (err) {
       res.status(500).json({ error: err.message });
@@ -46,62 +47,55 @@ app.get('/historial', authenticateToken, (req, res) => {
 });
 
 app.post("/historial", (req, res) => {
-  const { profesor, estado } = req.body;
+  const { profesor, estado, fecha } = req.body;
 
-  if (!profesor || !estado) {
-    return res.status(400).json({ error: "Profesor y estado son requeridos" });
+  if (!profesor || !estado || !fecha) {
+    return res
+      .status(400)
+      .json({ error: "Profesor, estado y fecha son requeridos" });
   }
 
-  const query = "INSERT INTO historial (profesor, estado) VALUES (?, ?)";
-  db.run(query, [profesor, estado], function (err) {
+  const query =
+    "INSERT INTO historial (profesor, estado, fecha) VALUES (?, ?, ?)";
+  db.run(query, [profesor, estado, fecha], function (err) {
     if (err) {
       res.status(500).json({ error: err.message });
     } else {
-      res.status(201).json({ id: this.lastID, profesor, estado });
+      res.status(201).json({ message: "Registro guardado correctamente" });
     }
   });
 });
 
 app.post("/estados", (req, res) => {
-  const { estado } = req.body;
+  const { estado, profesor } = req.body;
 
-  if (!estado) {
-    return res.status(400).json({ error: "El campo estado es requerido" });
+  if (!estado || !profesor) {
+    return res.status(400).json({ error: "Estado y profesor son requeridos" });
   }
 
-  // Verificar si el estado ya existe
-  const checkQuery = "SELECT COUNT(*) AS count FROM estados WHERE estado = ?";
-  db.get(checkQuery, [estado], (err, row) => {
+  const query = "INSERT INTO estados (estado, profesor) VALUES (?, ?)";
+  db.run(query, [estado, profesor], function (err) {
     if (err) {
-      return res.status(500).json({ error: err.message });
+      res.status(500).json({ error: err.message });
+    } else {
+      res.status(201).json({ message: "Estado guardado correctamente" });
     }
-
-    if (row.count > 0) {
-      return res
-        .status(400)
-        .json({ error: "El estado ya existe en la base de datos" });
-    }
-
-    // Insertar el nuevo estado si no existe
-    const insertQuery = "INSERT INTO estados (estado) VALUES (?)";
-    db.run(insertQuery, [estado], function (err) {
-      if (err) {
-        res.status(500).json({ error: err.message });
-      } else {
-        res.status(201).json({ estado });
-      }
-    });
   });
 });
 
 app.get("/estados", (req, res) => {
-  const query = "SELECT estado FROM estados";
+  const { profesor } = req.query;
 
-  db.all(query, [], (err, rows) => {
+  if (!profesor) {
+    return res.status(400).json({ error: "El correo del profesor es requerido" });
+  }
+
+  const query = "SELECT estado FROM estados WHERE profesor = ?";
+  db.all(query, [profesor], (err, rows) => {
     if (err) {
       res.status(500).json({ error: err.message });
     } else {
-      res.json(rows);
+      res.json(rows); // Asegúrate de que se devuelva un arreglo
     }
   });
 });
@@ -110,7 +104,9 @@ app.post("/register", (req, res) => {
   const { mail, password } = req.body;
 
   if (!mail || !password) {
-    return res.status(400).json({ error: "Correo y contraseña son requeridos" });
+    return res
+      .status(400)
+      .json({ error: "Correo y contraseña son requeridos" });
   }
 
   const query = "INSERT INTO usuarios (mail, password) VALUES (?, ?)";
@@ -147,13 +143,11 @@ app.post("/login", (req, res) => {
         expiresIn: "1h",
       });
 
-      res
-        .status(200)
-        .json({
-          message: "Usuario autenticado correctamente",
-          user: row,
-          token,
-        });
+      res.status(200).json({
+        message: "Usuario autenticado correctamente",
+        user: row,
+        token,
+      });
     } else {
       res.status(401).json({ error: "Correo o contraseña incorrectos" });
     }
