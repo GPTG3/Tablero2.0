@@ -199,7 +199,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  background: var(--color-primario);
+  background-color: var(--color-primario);
   color: white;
   border: none;
   border-radius: 10px;
@@ -209,15 +209,15 @@
   cursor: pointer;
   transition: all 0.3s ease;
   margin-top: 1.5rem;
-  box-shadow: 0 4px 10px rgba(204, 0, 0, 0.2);
+  box-shadow: 0 8px 20px rgba(204, 0, 0, 0.2);
   position: relative;
   z-index: 1;
 }
 
 .register-button:hover:not(:disabled) {
-  background: var(--color-primario-hover);
+  background-color: var(--color-primario-hover);
   transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(204, 0, 0, 0.25);
+  box-shadow: 0 12px 28px rgba(204, 0, 0, 0.25);
 }
 
 .register-button:disabled {
@@ -279,4 +279,14 @@
     padding: 2.2rem 1.8rem;
     max-width: 90%;
   }
+}
+
+/* Asegurar que el botón del formulario de registro sea rojo */
+form .register-button {
+  background-color: #CC0000 !important; /* Usando el valor directo en lugar de la variable */
+  color: white !important;
+}
+form .register-button:hover:not(:disabled) {
+  transform: translateY(-1px); /* Usando el valor directo en lugar de la variable */
+  background-color: var(--color-primario-hover) !important; /* Usando el valor directo en lugar de la variable */
 }
