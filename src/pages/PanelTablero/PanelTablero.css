@@ -127,6 +127,25 @@
   box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
 }
 
+.boton-guardar:disabled {
+  pointer-events: none; /* Desactiva cualquier interacción */
+  background-color: #ccc; /* Cambia el color de fondo para indicar que está deshabilitado */
+  color: #666; /* Cambia el color del texto */
+  cursor: not-allowed; /* Cambia el cursor a "no permitido" */
+  box-shadow: none; /* Elimina cualquier sombra */
+  transition: none; /* Desactiva las transiciones */
+}
+
+.boton-historial {
+  background-color: var(--color-primario);
+}
+
+.boton-historial:hover {
+  background-color: var(--color-primario-hover);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+
 .boton-limpiar {
   background-color: var(--color-acento);
 }
