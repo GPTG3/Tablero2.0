@@ -23,6 +23,23 @@ db.serialize(() => {
       fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+  // Tabla estados
+  db.run(`
+    CREATE TABLE IF NOT EXISTS estados (
+      estado TEXT NOT NULL
+    )
+  `);
+
+  // Tabla usuarios
+  db.run(`
+    CREATE TABLE IF NOT EXISTS usuarios (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      mail TEXT NOT NULL UNIQUE,
+      password TEXT NOT NULL
+    )
+  `);
+
 });
 
 module.exports = db;

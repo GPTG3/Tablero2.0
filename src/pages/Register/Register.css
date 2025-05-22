@@ -1,0 +1,109 @@
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 60px);
+  background-color: var(--background);
+  padding: 20px;
+}
+
+.register-card {
+  background-color: var(--color-panel);
+  border-radius: var(--radio-borde);
+  box-shadow: var(--sombra-panel);
+  width: 100%;
+  max-width: 450px;
+  padding: 40px;
+  transition: var(--transicion);
+}
+
+.register-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.register-header h1 {
+  margin: 0;
+  color: var(--color-texto);
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.register-header p {
+  color: var(--text-secondary);
+  margin-top: 8px;
+}
+
+.register-form {
+  margin-top: 20px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: var(--color-texto);
+}
+
+.form-group input {
+  width: 90%;
+  padding: 12px 15px;
+  border: 1px solid var(--color-input-borde);
+  border-radius: var(--radio-borde);
+  font-size: 16px;
+  background-color: var(--color-input);
+  transition: var(--transicion);
+}
+
+.form-group input:focus {
+  border-color: var(--color-primario);
+  outline: none;
+  box-shadow: 0 0 0 2px var(--primary-light);
+}
+
+.register-button {
+  width: 98%;
+  background: linear-gradient(135deg, var(--color-primario), var(--color-primario-hover));
+  color: var(--color-texto-claro);
+  border: none;
+  border-radius: var(--radio-borde);
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transicion);
+}
+
+.register-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--shadow-lg);
+}
+
+.register-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.register-error {
+  background-color: #ffebee;
+  color: #d32f2f;
+  padding: 12px;
+  border-radius: var(--radio-borde);
+  margin-bottom: 20px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.register-success {
+  background-color: #e8f5e9;
+  color: #388e3c;
+  padding: 12px;
+  border-radius: var(--radio-borde);
+  margin-bottom: 20px;
+  font-size: 14px;
+  text-align: center;
+}
