@@ -5,14 +5,40 @@ import "./PanelTablero.css";
 const PanelTablero = () => {
   const [mensaje, setMensaje] = useState("");
   const [estado, setEstado] = useState("");
-  const [opcionesEstado, setOpcionesEstado] = useState([]); // Nueva variable para las opciones de estado
+  const [opcionesEstado, setOpcionesEstado] = useState([]);
+  const [socket, setSocket] = useState(null); // WebSocket
+  const [mensajeDesdeESP, setMensajeDesdeESP] = useState(""); // Respuesta del ESP32
 
-  // Decodificar el token JWT para obtener el correo del profesor
   const token = localStorage.getItem("token");
   const profesor = token ? jwtDecode(token).mail : null;
 
+  // Conexión WebSocket al backend
   useEffect(() => {
-    // Obtener las opciones de estado desde la base de datos
+    const ws = new WebSocket("ws://localhost:3001");
+
+    ws.onopen = () => {
+      console.log("✅ WebSocket conectado");
+      setSocket(ws);
+    };
+
+    ws.onmessage = (event) => {
+      console.log("📩 Mensaje recibido desde ESP32:", event.data);
+      setMensajeDesdeESP(event.data); // Mostrarlo en pantalla
+    };
+
+    ws.onerror = (error) => {
+      console.error("❌ Error WebSocket:", error);
+    };
+
+    ws.onclose = () => {
+      console.log("🔌 WebSocket desconectado");
+    };
+
+    return () => ws.close();
+  }, []);
+
+  // Obtener estados del profesor
+  useEffect(() => {
     const fetchEstados = async () => {
       try {
         const response = await fetch(
@@ -20,7 +46,7 @@ const PanelTablero = () => {
         );
         if (response.ok) {
           const data = await response.json();
-          setOpcionesEstado(data.map((item) => item.estado)); // Extraer solo los valores de estado
+          setOpcionesEstado(data.map((item) => item.estado));
         } else {
           console.error("Error al obtener los estados:", response.statusText);
         }
@@ -30,7 +56,7 @@ const PanelTablero = () => {
     };
 
     fetchEstados();
-  }, [profesor]); // Ejecutar solo una vez al montar el componente
+  }, [profesor]);
 
   const manejarCambioMensaje = (e) => setMensaje(e.target.value);
   const manejarCambioEstado = (e) => setEstado(e.target.value);
@@ -42,7 +68,7 @@ const PanelTablero = () => {
     }
 
     try {
-      const nuevoEstado = estado || mensaje; // Determinar el estado a guardar
+      const nuevoEstado = estado || mensaje;
       const response = await fetch("http://localhost:3001/estados", {
         method: "POST",
         headers: {
@@ -50,13 +76,13 @@ const PanelTablero = () => {
         },
         body: JSON.stringify({
           estado: nuevoEstado,
-          profesor, // Incluir el correo del usuario logueado
+          profesor,
         }),
       });
 
       if (response.ok) {
         alert("Estado guardado correctamente");
-        setOpcionesEstado((prevOpciones) => [...prevOpciones, nuevoEstado]); // Agregar el nuevo estado a la lista
+        setOpcionesEstado((prev) => [...prev, nuevoEstado]);
         limpiarCampos();
       } else {
         const errorData = await response.json();
@@ -90,7 +116,7 @@ const PanelTablero = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          profesor, // Correo del profesor obtenido del token
+          profesor,
           estado,
           fecha: fechaActual,
         }),
@@ -98,6 +124,12 @@ const PanelTablero = () => {
 
       if (response.ok) {
         alert(`Registro guardado: ${profesor} | ${estado} | ${fechaActual}`);
+
+        // 🔁 Enviar al ESP32 vía WebSocket
+        if (socket && socket.readyState === WebSocket.OPEN) {
+          socket.send(estado);
+          console.log("📤 Estado enviado al ESP32:", estado);
+        }
       } else {
         const errorData = await response.json();
         alert(`Error al guardar en el historial: ${errorData.error}`);
@@ -141,7 +173,7 @@ const PanelTablero = () => {
             onChange={manejarCambioMensaje}
             placeholder="Escribe tu mensaje aquí..."
             rows="4"
-            disabled={estado !== ""} // Bloquear si se selecciona un estado
+            disabled={estado !== ""}
           ></textarea>
         </div>
 
@@ -149,7 +181,7 @@ const PanelTablero = () => {
           <button
             className="boton-guardar"
             onClick={guardarEstado}
-            disabled={estado !== ""} // Bloquear si se selecciona un estado
+            disabled={estado !== ""}
           >
             Guardar estado
           </button>
@@ -166,6 +198,12 @@ const PanelTablero = () => {
             {estado || mensaje || "Previsualización del mensaje"}
           </p>
         </div>
+
+        {mensajeDesdeESP && (
+          <div className="respuesta-esp">
+            <p><strong>Respuesta del ESP32:</strong> {mensajeDesdeESP}</p>
+          </div>
+        )}
       </div>
     </div>
   );
