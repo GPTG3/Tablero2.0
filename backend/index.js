@@ -14,7 +14,7 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
 // --- MQTT Configuración ---
-const mqttClient = mqtt.connect("mqtt://34.176.154.83"); // AQUI CAMBIAR IP
+const mqttClient = mqtt.connect("mqtt://34.176.60.77"); // AQUI CAMBIAR IP
 
 mqttClient.on("connect", () => {
   console.log("Conectado a MQTT broker");
