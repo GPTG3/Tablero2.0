@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import './Navbar.css';
 import { Link, useLocation } from 'react-router-dom';
+import logo from '../../assets/images/logo.png';
 
 function Navbar({ user, handleLogout }) {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -10,12 +11,39 @@ function Navbar({ user, handleLogout }) {
   const location = useLocation();
   const isLoginPage = location.pathname === '/login';
   const isLandingPage = location.pathname === '/';
+  
+  // Añadir un temporizador para debounce
+  const scrollTimerRef = useRef(null);
+  // Umbral de scroll mejorado
+  const scrollThreshold = 20; // Aumentado para mayor estabilidad
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 10);
+    const handleScroll = () => {
+      // Limpiar cualquier temporizador pendiente
+      if (scrollTimerRef.current) {
+        clearTimeout(scrollTimerRef.current);
+      }
+      
+      // Establecer un temporizador de 50ms para debounce
+      scrollTimerRef.current = setTimeout(() => {
+        // Solo cambiar el estado si estamos claramente por encima o por debajo del umbral
+        if (window.scrollY > scrollThreshold + 10) {
+          if (!isScrolled) setIsScrolled(true);
+        } else if (window.scrollY < scrollThreshold - 10) {
+          if (isScrolled) setIsScrolled(false);
+        }
+        // En la zona intermedia (scrollThreshold ± 10px) no cambiamos nada
+      }, 50);
+    };
+    
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (scrollTimerRef.current) {
+        clearTimeout(scrollTimerRef.current);
+      }
+    };
+  }, [isScrolled]);
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
@@ -51,7 +79,10 @@ function Navbar({ user, handleLogout }) {
   return (
     <div className={`navbar ${isScrolled ? 'navbar-scrolled' : ''}`}>
       <div className="navbar-logo">
-        <Link to="/">Tablero 2.0</Link>
+        <Link to="/">
+          <img src={logo} alt="Tablero 2.0" className="logo-image" />
+          <span className="logo-text">Tablero 2.0</span>
+        </Link>
       </div>
 
       {/* Only show menu button if not on login page and user is logged in */}
