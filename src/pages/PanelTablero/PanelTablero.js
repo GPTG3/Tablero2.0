@@ -66,7 +66,7 @@ const PanelTablero = () => {
       // Enviar un ping para verificar si el tablero responde
       if (ws.readyState === WebSocket.OPEN) {
         try {
-          ws.send("PING");
+          console.log("📤 Ping enviado al ESP32");
         } catch (error) {
           console.error("Error al enviar ping:", error);
         }
@@ -74,7 +74,6 @@ const PanelTablero = () => {
     }, 10000);
 
     return () => {
-      clearInterval(intervalo);
       ws.close();
     };
   }, [ultimaPing]);
