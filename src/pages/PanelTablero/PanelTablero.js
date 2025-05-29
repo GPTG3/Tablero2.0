@@ -33,13 +33,13 @@ const PanelTablero = () => {
       setMensajeDesdeESP(event.data);
       setUltimaPing(new Date()); // Actualizar timestamp de última comunicación
       setTableroConectado(true); // El tablero está conectado si recibimos mensajes
-      
+
       // Animación de nuevo mensaje
-      const respuestaElement = document.querySelector('.respuesta-esp');
+      const respuestaElement = document.querySelector(".respuesta-esp");
       if (respuestaElement) {
-        respuestaElement.classList.add('nuevo-mensaje');
+        respuestaElement.classList.add("nuevo-mensaje");
         setTimeout(() => {
-          respuestaElement.classList.remove('nuevo-mensaje');
+          respuestaElement.classList.remove("nuevo-mensaje");
         }, 1000);
       }
     };
@@ -59,10 +59,10 @@ const PanelTablero = () => {
     // Verificar periódicamente si el tablero está activo (cada 10 segundos)
     const intervalo = setInterval(() => {
       // Si no hemos recibido un ping en los últimos 15 segundos, consideramos que el tablero está desconectado
-      if (ultimaPing && (new Date() - ultimaPing) > 15000) {
+      if (ultimaPing && new Date() - ultimaPing > 15000) {
         setTableroConectado(false);
       }
-      
+
       // Enviar un ping para verificar si el tablero responde
       if (ws.readyState === WebSocket.OPEN) {
         try {
@@ -82,7 +82,7 @@ const PanelTablero = () => {
   useEffect(() => {
     const fetchEstados = async () => {
       if (!profesor) return;
-      
+
       setCargando(true);
       try {
         const response = await fetch(
@@ -114,7 +114,10 @@ const PanelTablero = () => {
 
   const guardarEstado = async () => {
     if (!mensaje && !estado) {
-      mostrarNotificacion("Por favor, completa al menos uno de los campos", "advertencia");
+      mostrarNotificacion(
+        "Por favor, completa al menos uno de los campos",
+        "advertencia"
+      );
       return;
     }
 
@@ -150,7 +153,10 @@ const PanelTablero = () => {
   // Modificamos la función de envío para incluir el color
   const aHistorial = async () => {
     if (!estado) {
-      mostrarNotificacion("Selecciona un estado antes de enviar", "advertencia");
+      mostrarNotificacion(
+        "Selecciona un estado antes de enviar",
+        "advertencia"
+      );
       return;
     }
 
@@ -180,19 +186,20 @@ const PanelTablero = () => {
       if (response.ok) {
         mostrarNotificacion("Mensaje enviado correctamente", "exito");
         setEstadoEnviado(true);
-        
+
         // Enviar al ESP32 (agregamos el color como parte del mensaje)
         if (socket && socket.readyState === WebSocket.OPEN) {
           // Formato: COLOR:MENSAJE (ej: "#FF0000:Hola mundo")
           socket.send(`${colorTexto}:${estado}`);
           console.log(`📤 Estado enviado al ESP32: ${colorTexto}:${estado}`);
-          
+
           // Animación para mostrar envío
-          const previsualizacionElement = document.querySelector('.previsualizacion');
+          const previsualizacionElement =
+            document.querySelector(".previsualizacion");
           if (previsualizacionElement) {
-            previsualizacionElement.classList.add('enviando');
+            previsualizacionElement.classList.add("enviando");
             setTimeout(() => {
-              previsualizacionElement.classList.remove('enviando');
+              previsualizacionElement.classList.remove("enviando");
             }, 1000);
           }
         }
@@ -212,7 +219,7 @@ const PanelTablero = () => {
     setEstado("");
     setEstadoEnviado(false);
   };
-  
+
   const mostrarNotificacion = (mensaje, tipo) => {
     setNotificacion({ mensaje, tipo });
     setTimeout(() => setNotificacion(null), 5000);
@@ -228,33 +235,56 @@ const PanelTablero = () => {
             {notificacion.tipo === "advertencia" && "⚠️"}
           </div>
           <div className="notificacion-mensaje">{notificacion.mensaje}</div>
-          <button onClick={() => setNotificacion(null)} className="notificacion-cerrar">×</button>
+          <button
+            onClick={() => setNotificacion(null)}
+            className="notificacion-cerrar"
+          >
+            ×
+          </button>
         </div>
       )}
-      
+
       <div className="dashboard-header">
         <div className="dashboard-titulo">
           <h1 className="titulo-bienvenida">
             <span className="titulo-principal">Panel de Control</span>
             <span className="mensaje-bienvenida">
-              <span className="emoji-icon">👋</span> 
-              ¡Bienvenido profesor <span className="nombre-profesor">{profesor?.split("@")[0]}</span>!
+              <span className="emoji-icon">👋</span>
+              ¡Bienvenido profesor{" "}
+              <span className="nombre-profesor">{profesor?.split("@")[0]}</span>
+              !
             </span>
           </h1>
         </div>
-        
+
         <div className="dashboard-stats">
           <div className="stat-card">
             <div className="stat-valor">{opcionesEstado.length}</div>
             <div className="stat-label">Estados Guardados</div>
           </div>
           <div className="stat-card">
-            <div className={`stat-indicador ${socket ? "conectado" : "desconectado"}`}>●</div>
-            <div className="stat-label">{socket ? "Servidor Conectado" : "Servidor Desconectado"}</div>
+            <div
+              className={`stat-indicador ${
+                socket ? "conectado" : "desconectado"
+              }`}
+            >
+              ●
+            </div>
+            <div className="stat-label">
+              {socket ? "Servidor Conectado" : "Servidor Desconectado"}
+            </div>
           </div>
           <div className="stat-card">
-            <div className={`stat-indicador ${tableroConectado ? "conectado" : "desconectado"}`}>●</div>
-            <div className="stat-label">{tableroConectado ? "Tablero Conectado" : "Tablero Desconectado"}</div>
+            <div
+              className={`stat-indicador ${
+                tableroConectado ? "conectado" : "desconectado"
+              }`}
+            >
+              ●
+            </div>
+            <div className="stat-label">
+              {tableroConectado ? "Tablero Conectado" : "Tablero Desconectado"}
+            </div>
           </div>
         </div>
       </div>
@@ -264,24 +294,26 @@ const PanelTablero = () => {
           <h2 className="titulo-panel">Centro de Gestión de Estados</h2>
           <div className="fecha-actual">{new Date().toLocaleDateString()}</div>
         </div>
-        
+
         <div className="panel-grid">
           <div className="panel-columna">
             <div className="tarjeta tarjeta-seleccion">
               <div className="tarjeta-header">
                 <h3>Seleccionar Estado</h3>
-                <span className="tarjeta-badge">{opcionesEstado.length} guardados</span>
+                <span className="tarjeta-badge">
+                  {opcionesEstado.length} guardados
+                </span>
               </div>
-              
+
               <div className="campo-formulario">
                 <label htmlFor="select-estado">
                   <span className="campo-icono">📋</span>
                   Selecciona un estado guardado:
                 </label>
                 <div className="campo-selector">
-                  <select 
-                    id="select-estado" 
-                    value={estado} 
+                  <select
+                    id="select-estado"
+                    value={estado}
                     onChange={manejarCambioEstado}
                     disabled={cargando}
                   >
@@ -294,9 +326,9 @@ const PanelTablero = () => {
                   </select>
                 </div>
               </div>
-              
+
               <div className="tarjeta-separador">o</div>
-              
+
               <div className="campo-formulario">
                 <label htmlFor="input-mensaje">
                   <span className="campo-icono">✍️</span>
@@ -310,9 +342,11 @@ const PanelTablero = () => {
                   rows="4"
                   disabled={estado !== "" || cargando}
                 ></textarea>
-                <div className="campo-ayuda">El mensaje se mostrará en el tablero LED</div>
+                <div className="campo-ayuda">
+                  El mensaje se mostrará en el tablero LED
+                </div>
               </div>
-              
+
               <div className="tarjeta-footer">
                 <button
                   className="boton boton-guardar"
@@ -322,14 +356,18 @@ const PanelTablero = () => {
                   <span className="boton-icono">💾</span>
                   Guardar Nuevo Estado
                 </button>
-                <button className="boton boton-limpiar" onClick={limpiarCampos} disabled={cargando}>
+                <button
+                  className="boton boton-limpiar"
+                  onClick={limpiarCampos}
+                  disabled={cargando}
+                >
                   <span className="boton-icono">🧹</span>
                   Limpiar
                 </button>
               </div>
             </div>
           </div>
-          
+
           <div className="panel-columna">
             <div className="tarjeta tarjeta-visualizacion">
               <div className="tarjeta-header">
@@ -338,7 +376,7 @@ const PanelTablero = () => {
                   {estadoEnviado ? "✅ Enviado" : "🔄 Pendiente"}
                 </div>
               </div>
-              
+
               {/* Agregamos el selector de color antes de la previsualización */}
               <div className="color-selector">
                 <label htmlFor="color-texto">
@@ -356,12 +394,12 @@ const PanelTablero = () => {
                   <span className="color-value">{colorTexto}</span>
                 </div>
               </div>
-              
+
               <div className="previsualizacion">
                 <div className="previsualizacion-marco">
                   <div className="previsualizacion-led">
                     <div className="texto-contenedor">
-                      <p 
+                      <p
                         className="texto-desplazamiento"
                         style={{ color: colorTexto }} // Aplicamos el color seleccionado
                       >
@@ -371,15 +409,43 @@ const PanelTablero = () => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="tarjeta-footer">
-                <button className="boton boton-enviar" onClick={aHistorial} disabled={!estado || cargando}>
+                <button
+                  className="boton boton-enviar"
+                  onClick={aHistorial}
+                  disabled={!estado || cargando}
+                >
                   <span className="boton-icono">📡</span>
                   Enviar al Tablero
                 </button>
+                <button
+                  className="boton boton-enviar-directo"
+                  onClick={() => {
+                    if (socket && socket.readyState === WebSocket.OPEN) {
+                      socket.send(`${colorTexto}:${mensaje}`);
+                      console.log(
+                        `📤 Mensaje enviado directamente al ESP32: ${colorTexto}:${mensaje}`
+                      );
+                      mostrarNotificacion(
+                        "Mensaje enviado directamente al tablero",
+                        "exito"
+                      );
+                    } else {
+                      mostrarNotificacion(
+                        "El tablero no está conectado",
+                        "error"
+                      );
+                    }
+                  }}
+                  disabled={!mensaje || cargando}
+                >
+                  <span className="boton-icono">🚀</span>
+                  Enviar Mensaje Directo
+                </button>
               </div>
             </div>
-            
+
             {mensajeDesdeESP && (
               <div className="tarjeta tarjeta-respuesta">
                 <div className="tarjeta-header">
@@ -395,7 +461,7 @@ const PanelTablero = () => {
           </div>
         </div>
       </div>
-      
+
       {cargando && (
         <div className="cargador-overlay">
           <div className="cargador-spinner"></div>

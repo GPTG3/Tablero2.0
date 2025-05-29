@@ -377,6 +377,21 @@
   color: white;
 }
 
+.boton-enviar-directo {
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.boton-enviar-directo:disabled {
+  background-color: #CCCCCC;
+  cursor: not-allowed;
+}
+
 .boton-enviar:hover:not(:disabled) {
   box-shadow: 0 4px 15px rgba(79, 70, 229, 0.25);
   transform: translateY(-2px);
