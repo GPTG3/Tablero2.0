@@ -4,6 +4,7 @@
     background-color: #333;
     color: rgb(255, 255, 255);
     font-size: 0.9rem;
+    margin-top: 2rem; /* Añadido margen superior de 2rem */
   }
 
   .footer p {

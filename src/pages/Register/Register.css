@@ -2,85 +2,222 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: calc(100vh - 60px);
-  background-color: var(--background);
+  min-height: calc(100vh - 160px); /* Ajustado para dejar espacio al navbar y footer */
+  background-color: var(--color-fondo);
   padding: 20px;
 }
 
 .register-card {
   background-color: var(--color-panel);
-  border-radius: var(--radio-borde);
-  box-shadow: var(--sombra-panel);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
   width: 100%;
-  max-width: 450px;
-  padding: 40px;
-  transition: var(--transicion);
+  max-width: 550px; /* Mismo ancho que el login */
+  padding: 2.8rem;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #eaeaea;
+  /* Borde superior con gradiente sutil */
+  border-top: none; /* Eliminamos el borde superior ya que el logo tendrá color */
+  border-radius: 16px;
+  overflow: hidden; /* Importante para que el logo no se salga de los bordes redondeados */
+  padding-top: 0; /* Eliminamos el padding superior */
+  margin-top: 2rem; /* Para que el logo sobresalga */
 }
 
+/* Eliminamos cualquier línea lateral */
+.register-card::before {
+  content: none;
+}
+
+/* Añadimos un fondo con un sutil patrón de gradiente */
+.register-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 150px; /* Alto limitado para que solo afecte la parte superior */
+  background: linear-gradient(180deg, 
+              rgba(204, 0, 0, 0.02) 0%,
+              rgba(204, 0, 0, 0) 100%);
+  pointer-events: none; /* Para que no interfiera con los clicks */
+  z-index: 0; /* Detrás del contenido */
+}
+
+.login-link {
+  color: var(--color-primario);
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.login-link:hover {
+  color: var(--color-primario-hover);
+  text-decoration: underline;
+}
+
+/* Modificamos el contenedor del logo para tener fondo rojo */
+.register-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+  background: linear-gradient(135deg, var(--color-primario), var(--color-primario-hover-dark)); /* Gradient de rojo a uno más oscuro */
+  border-radius: 12px 12px 0 0; /* Bordes redondeados solo arriba */
+  padding: 2.8rem 0 1.5rem 0; /* Aumentado un poco el padding arriba y abajo */
+  width: calc(100% + 5.6rem); /* Que ocupe todo el ancho y más para extenderse fuera de los bordes */
+  box-shadow: 0 6px 12px rgba(204, 0, 0, 0.2); /* Sombra para dar profundidad */
+  margin: -2.8rem -2.8rem 2rem -2.8rem; /* Margen negativo para extender fuera del card */
+}
+
+/* Ajustamos la imagen para que sea blanca */
+.register-logo img {
+  height: 95px; /* Logo un poco más chico */
+  margin-bottom: 0.5rem; /* Menos espacio debajo del logo */
+  filter: brightness(0) invert(1); /* Esto convierte la imagen a blanco */
+  transform: translateY(1rem); /* Bajamos menos el logo */
+}
+
+/* También debemos ajustar el header para que tenga más espacio */
 .register-header {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 2rem;
+  margin-top: 2.5rem; /* Más espacio entre el logo y el título */
+  position: relative;
+  z-index: 1;
+  border-bottom: 1px solid var(--color-primario);
+  padding-bottom: 1.5rem;
 }
 
 .register-header h1 {
   margin: 0;
-  color: var(--color-texto);
-  font-size: 28px;
-  font-weight: 700;
+  color: var(--color-primario-hover);
+  font-size: 1.6rem;
+  font-weight: 600;
+  font-family: var(--fuente-bold);
 }
 
 .register-header p {
-  color: var(--text-secondary);
-  margin-top: 8px;
+  color: var(--color-texto-secundario);
+  margin-top: 0.5rem;
+  font-size: 1rem;
+  font-weight: 400;
+  max-width: 90%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
+/* Notificaciones */
+.register-error,
+.register-success {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+  position: relative;
+  z-index: 1;
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.register-error {
+  background-color: rgba(239, 68, 68, 0.1);
+  border-left: 4px solid var(--color-primario);
+  color: var(--color-primario-hover);
+}
+
+.register-success {
+  background-color: rgba(0, 170, 68, 0.1);
+  border-left: 4px solid var(--color-secundario);
+  color: var(--color-secundario-hover);
+}
+
+.error-icon,
+.success-icon {
+  margin-right: 0.75rem;
+  font-size: 1.1rem;
+}
+
+.error-message,
+.success-message {
+  flex: 1;
+}
+
+/* Formulario */
 .register-form {
-  margin-top: 20px;
+  position: relative;
+  z-index: 1;
+  margin-bottom: 1.5rem;
 }
 
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 1.5rem;
+  position: relative;
+  z-index: 1;
 }
 
 .form-group label {
-  display: block;
-  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
   font-weight: 500;
   color: var(--color-texto);
+  font-size: 1rem;
+}
+
+.form-icon {
+  margin-right: 0.5rem;
+  font-size: 1.1rem;
 }
 
 .form-group input {
-  width: 90%;
-  padding: 12px 15px;
+  width: 100%;
+  padding: 1rem 1.25rem;
   border: 1px solid var(--color-input-borde);
-  border-radius: var(--radio-borde);
-  font-size: 16px;
+  border-radius: 10px;
+  font-size: 1.05rem;
   background-color: var(--color-input);
-  transition: var(--transicion);
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
 }
 
 .form-group input:focus {
   border-color: var(--color-primario);
   outline: none;
-  box-shadow: 0 0 0 2px var(--primary-light);
+  box-shadow: 0 0 0 3px rgba(204, 0, 0, 0.15), 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
+/* Botón */
 .register-button {
-  width: 98%;
-  background: linear-gradient(135deg, var(--color-primario), var(--color-primario-hover));
-  color: var(--color-texto-claro);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  background-color: var(--color-primario);
+  color: white;
   border: none;
-  border-radius: var(--radio-borde);
-  padding: 14px;
-  font-size: 16px;
+  border-radius: 10px;
+  padding: 1.1rem;
+  font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: var(--transicion);
+  transition: all 0.3s ease;
+  margin-top: 1.5rem;
+  box-shadow: 0 8px 20px rgba(204, 0, 0, 0.2);
+  position: relative;
+  z-index: 1;
 }
 
-.register-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px var(--shadow-lg);
+.register-button:hover:not(:disabled) {
+  background-color: var(--color-primario-hover);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(204, 0, 0, 0.25);
 }
 
 .register-button:disabled {
@@ -88,22 +225,68 @@
   cursor: not-allowed;
 }
 
-.register-error {
-  background-color: #ffebee;
-  color: #d32f2f;
-  padding: 12px;
-  border-radius: var(--radio-borde);
-  margin-bottom: 20px;
-  font-size: 14px;
-  text-align: center;
+.button-icon {
+  font-size: 1.1rem;
 }
 
-.register-success {
-  background-color: #e8f5e9;
-  color: #388e3c;
-  padding: 12px;
-  border-radius: var(--radio-borde);
-  margin-bottom: 20px;
-  font-size: 14px;
-  text-align: center;
+.spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Footer */
+.register-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.register-footer p {
+  margin: 0;
+  color: var(--color-texto-secundario);
+  font-size: 0.95rem;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .register-card {
+    padding: 2.2rem 1.8rem;
+    max-width: 90%;
+  }
+}
+
+/* Asegurar que el botón del formulario de registro sea rojo */
+form .register-button {
+  background-color: #CC0000 !important; /* Usando el valor directo en lugar de la variable */
+  color: white !important;
+}
+form .register-button:hover:not(:disabled) {
+  transform: translateY(-1px); /* Usando el valor directo en lugar de la variable */
+  background-color: var(--color-primario-hover) !important; /* Usando el valor directo en lugar de la variable */
 }

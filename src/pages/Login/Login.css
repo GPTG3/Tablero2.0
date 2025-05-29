@@ -2,137 +2,182 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: calc(100vh - 60px); /* Resta el espacio del Navbar y Footer */
-  background-color: var(--background);
+  min-height: calc(100vh - 160px); /* Ajustado para dejar espacio al navbar y footer */
+  background-color: var(--color-fondo);
   padding: 20px;
 }
 
 .login-card {
   background-color: var(--color-panel);
-  border-radius: var(--radio-borde);
-  box-shadow: var(--sombra-panel);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
   width: 100%;
-  max-width: 450px;
-  padding: 40px;
-  transition: var(--transicion);
+  max-width: 550px; /* Aumentado de 450px a 550px para hacerlo más ancho */
+  padding: 2.8rem; /* Aumentado ligeramente el padding */
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #eaeaea;
+  /* Borde superior con gradiente sutil en lugar de la línea lateral */
+  border-top: 4px solid var(--color-primario);
 }
 
-.login-card:hover {
-  transform: translateY(-5px);
+/* Eliminamos la línea roja de la izquierda */
+.login-card::before {
+  content: none;
 }
 
+/* Añadimos un fondo con un sutil patrón de gradiente */
+.login-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 150px; /* Alto limitado para que solo afecte la parte superior */
+  background: linear-gradient(180deg, 
+              rgba(204, 0, 0, 0.02) 0%,
+              rgba(204, 0, 0, 0) 100%);
+  pointer-events: none; /* Para que no interfiera con los clicks */
+  z-index: 0; /* Detrás del contenido */
+}
+.register-link {
+  color: var(--color-primario);
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+.register-link:hover {
+  color: var(--color-primario-hover);
+  text-decoration: underline;
+}
+
+/* Modificamos el contenedor del logo para tener fondo rojo */
+.login-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+  background: linear-gradient(135deg, var(--color-primario), var(--color-primario-hover-dark)); /* Gradient de rojo a uno más oscuro */
+  border-radius: 12px 12px 0 0; /* Bordes redondeados solo arriba */
+  padding: 2.8rem 0 1.5rem 0; /* Aumentado un poco el padding arriba y abajo */
+  width: calc(100% + 5.6rem); /* Que ocupe todo el ancho y más para extenderse fuera de los bordes */
+  box-shadow: 0 6px 12px rgba(204, 0, 0, 0.2); /* Sombra para dar profundidad */
+  margin: -2.8rem -2.8rem 2rem -2.8rem; /* Margen negativo para extender fuera del card */
+}
+
+/* Ajustamos la imagen para que sea blanca */
+.login-logo img {
+  height: 95px; /* Logo un poco más chico */
+  margin-bottom: 0.5rem; /* Menos espacio debajo del logo */
+  filter: brightness(0) invert(1); /* Esto convierte la imagen a blanco */
+  transform: translateY(1rem); /* Bajamos menos el logo */
+}
+
+/* Texto del logo en blanco */
+.login-logo h2 {
+  margin: 0;
+  color: white;
+  font-size: 1.8rem;
+  font-weight: 700;
+  font-family: var(--fuente-bold);
+  letter-spacing: -0.5px;
+  text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Ajustamos los bordes de la tarjeta */
+.login-card {
+  border-top: none; /* Eliminamos el borde superior ya que el logo tendrá color */
+  border-radius: 16px;
+  overflow: hidden; /* Importante para que el logo no se salga de los bordes redondeados */
+  padding-top: 0; /* Eliminamos el padding superior */
+}
+
+/* También debemos ajustar el header para que tenga más espacio */
 .login-header {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 2rem;
+  margin-top: 2.5rem; /* Más espacio entre el logo y el título */
+  position: relative;
+  z-index: 1;
+  border-bottom: 1px solid var(--color-primario);
+  padding-bottom: 1.5rem;
 }
 
 .login-header h1 {
   margin: 0;
-  color: var(--color-texto);
-  font-size: 28px;
-  font-weight: 700;
+  color: var(--color-primario-hover);
+  font-size: 1.6rem; /* Ajustado el tamaño */
+  font-weight: 600; /* Menos bold para mejor equilibrio */
+  font-family: var(--fuente-bold);
 }
 
 .login-header p {
-  color: var(--text-secondary);
-  margin-top: 8px;
+  color: var(--color-texto-secundario);
+  margin-top: 0.5rem;
+  font-size: 1rem; /* Ajustado el tamaño */
+  font-weight: 400;
+  max-width: 90%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.login-form {
-  margin-top: 20px;
+/* El resto del CSS se mantiene igual pero asegurándose que elementos importantes tengan z-index: 1 */
+.login-error, .form-group, .login-button, .login-footer {
+  position: relative;
+  z-index: 1;
 }
 
-.form-group {
-  margin-bottom: 20px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: 500;
-  color: var(--color-texto);
-}
-
+/* Estilo mejorado para los campos de formulario */
 .form-group input {
-  width: 90%;
-  padding: 12px 15px;
+  width: 100%;
+  padding: 1rem 1.25rem; /* Campos un poco más grandes */
   border: 1px solid var(--color-input-borde);
-  border-radius: var(--radio-borde);
-  font-size: 16px;
+  border-radius: 10px; /* Bordes un poco más redondeados */
+  font-size: 1.05rem; /* Texto un poco más grande */
   background-color: var(--color-input);
-  transition: var(--transicion);
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03); /* Sombra muy sutil */
 }
 
 .form-group input:focus {
   border-color: var(--color-primario);
   outline: none;
-  box-shadow: 0 0 0 2px var(--primary-light);
+  box-shadow: 0 0 0 3px rgba(204, 0, 0, 0.15), 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
+/* Botón más llamativo */
 .login-button {
-  width: 98%;
-  background: linear-gradient(135deg, var(--color-primario), var(--color-primario-hover));
-  color: var(--color-texto-claro);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  background: var(--color-primario); /* Usamos el color sólido en vez del gradiente */
+  color: white;
   border: none;
-  border-radius: var(--radio-borde);
-  padding: 14px;
-  font-size: 16px;
+  border-radius: 10px; /* Bordes más redondeados */
+  padding: 1.1rem; /* Botón un poco más alto */
+  font-size: 1.1rem; /* Texto más grande */
   font-weight: 600;
   cursor: pointer;
-  transition: var(--transicion);
+  transition: all 0.3s ease;
+  margin-top: 1.5rem; /* Más espacio arriba */
+  box-shadow: 0 4px 10px rgba(204, 0, 0, 0.2); /* Sombra que da profundidad */
 }
 
-.login-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px var(--shadow-lg);
+.login-button:hover:not(:disabled) {
+  background: var(--color-primario-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(204, 0, 0, 0.25);
 }
 
-.login-button:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.login-error {
-  background-color: #ffebee;
-  color: #d32f2f;
-  padding: 12px;
-  border-radius: var(--radio-borde);
-  margin-bottom: 20px;
-  font-size: 14px;
-  text-align: center;
-}
-
-.form-footer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.forgot-password {
-  color: var(--color-primario);
-  text-decoration: none;
-  font-size: 14px;
-  margin-top: 15px;
-  transition: var(--transicion);
-}
-
-.forgot-password:hover {
-  color: var(--color-primario-hover);
-  text-decoration: underline;
-}
-
-.logout-button {
-  background-color: var(--color-acento);
-  color: var(--color-texto-claro);
-  border: none;
-  border-radius: calc(var(--radio-borde) / 2);
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: var(--transicion);
-  margin-top: 20px;
-}
-
-.logout-button:hover {
-  background-color: var(--color-acento-hover);
+/* Responsive */
+@media (max-width: 768px) {
+  .login-card {
+    padding: 2.2rem 1.8rem;
+    max-width: 90%; /* Mantener proporción en móviles */
+  }
 }
