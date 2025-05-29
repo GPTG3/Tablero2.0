@@ -145,6 +145,46 @@ app.get("/estados", (req, res) => {
   });
 });
 
+// Ruta para editar un estado
+app.put("/estados", (req, res) => {
+  const { estadoOriginal, nuevoEstado, profesor } = req.body;
+
+  if (!estadoOriginal || !nuevoEstado || !profesor) {
+    return res.status(400).json({ error: "Estado original, nuevo estado y profesor son requeridos" });
+  }
+
+  const query = "UPDATE estados SET estado = ? WHERE estado = ? AND profesor = ?";
+  db.run(query, [nuevoEstado, estadoOriginal, profesor], function (err) {
+    if (err) {
+      res.status(500).json({ error: err.message });
+    } else if (this.changes === 0) {
+      res.status(404).json({ error: "Estado no encontrado o no pertenece al profesor" });
+    } else {
+      res.status(200).json({ message: "Estado actualizado correctamente" });
+    }
+  });
+});
+
+// Ruta para eliminar un estado
+app.delete("/estados", (req, res) => {
+  const { estado, profesor } = req.body;
+
+  if (!estado || !profesor) {
+    return res.status(400).json({ error: "Estado y profesor son requeridos" });
+  }
+
+  const query = "DELETE FROM estados WHERE estado = ? AND profesor = ?";
+  db.run(query, [estado, profesor], function (err) {
+    if (err) {
+      res.status(500).json({ error: err.message });
+    } else if (this.changes === 0) {
+      res.status(404).json({ error: "Estado no encontrado o no pertenece al profesor" });
+    } else {
+      res.status(200).json({ message: "Estado eliminado correctamente" });
+    }
+  });
+});
+
 app.post("/register", (req, res) => {
   const { mail, password } = req.body;
 
