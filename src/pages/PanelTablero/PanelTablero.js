@@ -66,7 +66,7 @@ const PanelTablero = () => {
       // Enviar un ping para verificar si el tablero responde
       if (ws.readyState === WebSocket.OPEN) {
         try {
-          ws.send("PING");
+          console.log("📤 Ping enviado al ESP32");
         } catch (error) {
           console.error("Error al enviar ping:", error);
         }
@@ -74,7 +74,6 @@ const PanelTablero = () => {
     }, 10000);
 
     return () => {
-      clearInterval(intervalo);
       ws.close();
     };
   }, [ultimaPing]);
@@ -137,6 +136,60 @@ const PanelTablero = () => {
         mostrarNotificacion("Estado guardado correctamente", "exito");
         setOpcionesEstado((prev) => [...prev, nuevoEstado]);
         limpiarCampos();
+      } else {
+        const errorData = await response.json();
+        mostrarNotificacion(`Error: ${errorData.error}`, "error");
+      }
+    } catch (error) {
+      mostrarNotificacion("Error de conexión con el servidor", "error");
+    } finally {
+      setCargando(false);
+    }
+  };
+
+  const editarEstado = async (estadoOriginal, nuevoEstado) => {
+    setCargando(true);
+    try {
+      const response = await fetch("http://localhost:3001/estados", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ estadoOriginal, nuevoEstado, profesor }),
+      });
+
+      if (response.ok) {
+        mostrarNotificacion("Estado editado correctamente", "exito");
+        setOpcionesEstado((prev) =>
+          prev.map((estado) =>
+            estado === estadoOriginal ? nuevoEstado : estado
+          )
+        );
+      } else {
+        const errorData = await response.json();
+        mostrarNotificacion(`Error: ${errorData.error}`, "error");
+      }
+    } catch (error) {
+      mostrarNotificacion("Error de conexión con el servidor", "error");
+    } finally {
+      setCargando(false);
+    }
+  };
+
+  const eliminarEstado = async (estado) => {
+    setCargando(true);
+    try {
+      const response = await fetch("http://localhost:3001/estados", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ estado, profesor }),
+      });
+
+      if (response.ok) {
+        mostrarNotificacion("Estado eliminado correctamente", "exito");
+        setOpcionesEstado((prev) => prev.filter((opcion) => opcion !== estado));
       } else {
         const errorData = await response.json();
         mostrarNotificacion(`Error: ${errorData.error}`, "error");

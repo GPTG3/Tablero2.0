@@ -325,6 +325,52 @@
   margin-top: -0.25rem;
 }
 
+/* Opciones de edición y eliminación */
+.estado-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background-color: var(--color-input);
+  margin-bottom: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.estado-item:hover {
+  background-color: var(--color-input-hover);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.estado-item span {
+  font-size: 1rem;
+  color: var(--color-texto);
+  flex-grow: 1;
+}
+
+.estado-item .boton {
+  background: none;
+  border: none;
+  color: var(--color-primario);
+  font-size: 1.25rem;
+  cursor: pointer;
+  margin-left: 0.5rem;
+  transition: color 0.2s ease;
+}
+
+.estado-item .boton:hover {
+  color: var(--color-primario-hover);
+}
+
+.estado-item .boton-editar::before {
+  content: "✏️";
+}
+
+.estado-item .boton-eliminar::before {
+  content: "🗑️";
+}
+
 /* Botones */
 .boton {
   display: flex;
@@ -375,6 +421,21 @@
 .boton-enviar {
   background: linear-gradient(135deg, var(--color-primario), var(--color-primario-hover));
   color: white;
+}
+
+.boton-enviar-directo {
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.boton-enviar-directo:disabled {
+  background-color: #CCCCCC;
+  cursor: not-allowed;
 }
 
 .boton-enviar:hover:not(:disabled) {

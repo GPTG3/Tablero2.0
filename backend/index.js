@@ -14,7 +14,7 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
 // --- MQTT Configuración ---
-const mqttClient = mqtt.connect("mqtt://34.176.154.83"); // AQUI CAMBIAR IP
+const mqttClient = mqtt.connect("mqtt://34.176.60.77"); // AQUI CAMBIAR IP
 
 mqttClient.on("connect", () => {
   console.log("Conectado a MQTT broker");
@@ -141,6 +141,46 @@ app.get("/estados", (req, res) => {
       res.status(500).json({ error: err.message });
     } else {
       res.json(rows); // Asegúrate de que se devuelva un arreglo
+    }
+  });
+});
+
+// Ruta para editar un estado
+app.put("/estados", (req, res) => {
+  const { estadoOriginal, nuevoEstado, profesor } = req.body;
+
+  if (!estadoOriginal || !nuevoEstado || !profesor) {
+    return res.status(400).json({ error: "Estado original, nuevo estado y profesor son requeridos" });
+  }
+
+  const query = "UPDATE estados SET estado = ? WHERE estado = ? AND profesor = ?";
+  db.run(query, [nuevoEstado, estadoOriginal, profesor], function (err) {
+    if (err) {
+      res.status(500).json({ error: err.message });
+    } else if (this.changes === 0) {
+      res.status(404).json({ error: "Estado no encontrado o no pertenece al profesor" });
+    } else {
+      res.status(200).json({ message: "Estado actualizado correctamente" });
+    }
+  });
+});
+
+// Ruta para eliminar un estado
+app.delete("/estados", (req, res) => {
+  const { estado, profesor } = req.body;
+
+  if (!estado || !profesor) {
+    return res.status(400).json({ error: "Estado y profesor son requeridos" });
+  }
+
+  const query = "DELETE FROM estados WHERE estado = ? AND profesor = ?";
+  db.run(query, [estado, profesor], function (err) {
+    if (err) {
+      res.status(500).json({ error: err.message });
+    } else if (this.changes === 0) {
+      res.status(404).json({ error: "Estado no encontrado o no pertenece al profesor" });
+    } else {
+      res.status(200).json({ message: "Estado eliminado correctamente" });
     }
   });
 });
