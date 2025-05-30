@@ -180,4 +180,65 @@
     padding: 2.2rem 1.8rem;
     max-width: 90%; /* Mantener proporción en móviles */
   }
+  
+  /* Ajustes para el logo */
+  .login-logo {
+    padding: 2rem 0 1.2rem 0; /* Reducir padding en móviles */
+    width: calc(100% + 3.6rem); /* Ajustar el ancho para el nuevo padding */
+    margin: -2.2rem -1.8rem 1.5rem -1.8rem; /* Ajustar margen negativo */
+  }
+  
+  .login-logo img {
+    height: 75px; /* Logo más pequeño en móviles */
+  }
+  
+  /* Ajustes para el texto */
+  .login-header h1 {
+    font-size: 1.4rem;
+  }
+  
+  .login-header p {
+    font-size: 0.9rem;
+    max-width: 100%;
+  }
+  
+  /* Ajustes para formularios */
+  .form-group input {
+    padding: 0.8rem 1rem;
+    font-size: 1rem;
+  }
+  
+  /* Ajustes para botón */
+  .login-button {
+    padding: 0.9rem;
+    font-size: 1rem;
+  }
+}
+
+/* Para pantallas muy pequeñas */
+@media (max-width: 480px) {
+  .login-container {
+    padding: 10px;
+  }
+  
+  .login-card {
+    padding: 1.8rem 1.4rem;
+    max-width: 95%;
+  }
+  
+  .login-logo {
+    padding: 1.5rem 0 1rem 0;
+    width: calc(100% + 2.8rem);
+    margin: -1.8rem -1.4rem 1.2rem -1.4rem;
+  }
+  
+  .login-logo img {
+    height: 60px;
+  }
+  
+  .login-header {
+    margin-bottom: 1.5rem;
+    margin-top: 2rem;
+    padding-bottom: 1rem;
+  }
 }

@@ -407,7 +407,14 @@ const PanelTablero = () => {
                     onChange={manejarCambioColor}
                     className="color-picker"
                   />
-                  <span className="color-value">{colorTexto}</span>
+                  <input 
+                    type="text"
+                    value={colorTexto}
+                    onChange={manejarCambioColor}
+                    className="color-value-input"
+                    pattern="^#[0-9A-Fa-f]{6}$"
+                    title="Código de color hexadecimal (ej: #FF0000)"
+                  />
                 </div>
               </div>
               
