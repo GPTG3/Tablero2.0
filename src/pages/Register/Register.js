@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import "./Register.css";
 import logo from "../../assets/images/logo2.png";
 import { Link } from "react-router-dom";
+import styles from "./Register.module.css"; // Asegúrate de tener un archivo CSS para estilos
 
 function Register() {
   const [email, setEmail] = useState("");
@@ -45,7 +45,9 @@ function Register() {
         setPassword("");
         setConfirmPassword("");
       } else {
-        setError(data.error || "Error al registrar el usuario. Inténtalo de nuevo.");
+        setError(
+          data.error || "Error al registrar el usuario. Inténtalo de nuevo."
+        );
       }
     } catch (err) {
       setError("Error al conectar con el servidor. Inténtalo de nuevo.");
@@ -55,35 +57,35 @@ function Register() {
   };
 
   return (
-    <div className="register-container">
-      <div className="register-card">
-        <div className="register-logo">
+    <div className={styles["register-container"]}>
+      <div className={styles["register-card"]}>
+        <div className={styles["register-logo"]}>
           <img src={logo} alt="Tablero 2.0" />
         </div>
 
-        <div className="register-header">
+        <div className={styles["register-header"]}>
           <h1>Crear Cuenta</h1>
           <p>Completa el formulario para registrar un nuevo profesor</p>
         </div>
 
         {error && (
-          <div className="register-error">
-            <div className="error-icon">❌</div>
-            <div className="error-message">{error}</div>
+          <div className={styles["register-error"]}>
+            <div className={styles["error-icon"]}>❌</div>
+            <div className={styles["error-message"]}>{error}</div>
           </div>
         )}
 
         {success && (
-          <div className="register-success">
-            <div className="success-icon">✅</div>
-            <div className="success-message">{success}</div>
+          <div className={styles["register-success"]}>
+            <div className={styles["success-icon"]}>✅</div>
+            <div className={styles["success-message"]}>{success}</div>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="register-form">
-          <div className="form-group">
+        <form onSubmit={handleSubmit} className={styles["register-form"]}>
+          <div className={styles["form-group"]}>
             <label htmlFor="email">
-              <span className="form-icon">✉️</span>
+              <span className={styles["form-icon"]}>✉️</span>
               Correo Electrónico
             </label>
             <input
@@ -96,9 +98,9 @@ function Register() {
             />
           </div>
 
-          <div className="form-group">
+          <div className={styles["form-group"]}>
             <label htmlFor="password">
-              <span className="form-icon">🔒</span>
+              <span className={styles["form-icon"]}>🔒</span>
               Contraseña
             </label>
             <input
@@ -111,9 +113,9 @@ function Register() {
             />
           </div>
 
-          <div className="form-group">
+          <div className={styles["form-group"]}>
             <label htmlFor="confirmPassword">
-              <span className="form-icon">🔐</span>
+              <span className={styles["form-icon"]}>🔐</span>
               Confirmar Contraseña
             </label>
             <input
@@ -126,22 +128,26 @@ function Register() {
             />
           </div>
 
-          <button type="submit" className="register-button" disabled={isLoading}>
+          <button
+            type="submit"
+            className={styles["register-button"]}
+            disabled={isLoading}
+          >
             {isLoading ? (
               <>
-                <span className="spinner"></span> Registrando...
+                <span className={styles["spinner"]}></span> Registrando...
               </>
             ) : (
               <>
-                <span className="button-icon">📝</span> Crear Cuenta
+                <span className={styles["button-icon"]}>📝</span> Crear Cuenta
               </>
             )}
           </button>
         </form>
 
-        <div className="register-footer">
+        <div className={styles["register-footer"]}>
           <p>¿Ya tienes cuenta?</p>
-          <Link to="/login" className="login-link">
+          <Link to="/login" className={styles["login-link"]}>
             Iniciar Sesión
           </Link>
         </div>

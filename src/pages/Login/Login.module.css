@@ -2,7 +2,9 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: calc(100vh - 160px); /* Ajustado para dejar espacio al navbar y footer */
+  min-height: calc(
+    100vh - 160px
+  ); /* Ajustado para dejar espacio al navbar y footer */
   background-color: var(--color-fondo);
   padding: 20px;
 }
@@ -35,9 +37,11 @@
   left: 0;
   right: 0;
   height: 150px; /* Alto limitado para que solo afecte la parte superior */
-  background: linear-gradient(180deg, 
-              rgba(204, 0, 0, 0.02) 0%,
-              rgba(204, 0, 0, 0) 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(204, 0, 0, 0.02) 0%,
+    rgba(204, 0, 0, 0) 100%
+  );
   pointer-events: none; /* Para que no interfiera con los clicks */
   z-index: 0; /* Detrás del contenido */
 }
@@ -59,10 +63,16 @@
   align-items: center;
   position: relative;
   z-index: 1;
-  background: linear-gradient(135deg, var(--color-primario), var(--color-primario-hover-dark)); /* Gradient de rojo a uno más oscuro */
+  background: linear-gradient(
+    135deg,
+    var(--color-primario),
+    var(--color-primario-hover-dark)
+  ); /* Gradient de rojo a uno más oscuro */
   border-radius: 12px 12px 0 0; /* Bordes redondeados solo arriba */
   padding: 2.8rem 0 1.5rem 0; /* Aumentado un poco el padding arriba y abajo */
-  width: calc(100% + 5.6rem); /* Que ocupe todo el ancho y más para extenderse fuera de los bordes */
+  width: calc(
+    100% + 5.6rem
+  ); /* Que ocupe todo el ancho y más para extenderse fuera de los bordes */
   box-shadow: 0 6px 12px rgba(204, 0, 0, 0.2); /* Sombra para dar profundidad */
   margin: -2.8rem -2.8rem 2rem -2.8rem; /* Margen negativo para extender fuera del card */
 }
@@ -124,9 +134,16 @@
 }
 
 /* El resto del CSS se mantiene igual pero asegurándose que elementos importantes tengan z-index: 1 */
-.login-error, .form-group, .login-button, .login-footer {
+.login-error,
+.form-group,
+.login-button,
+.login-footer {
   position: relative;
   z-index: 1;
+}
+
+.form-group {
+  margin-bottom: 1.5rem; /* Más espacio entre los campos */
 }
 
 /* Estilo mejorado para los campos de formulario */
@@ -155,7 +172,9 @@
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  background: var(--color-primario); /* Usamos el color sólido en vez del gradiente */
+  background: var(
+    --color-primario
+  ); /* Usamos el color sólido en vez del gradiente */
   color: white;
   border: none;
   border-radius: 10px; /* Bordes más redondeados */
@@ -180,34 +199,34 @@
     padding: 2.2rem 1.8rem;
     max-width: 90%; /* Mantener proporción en móviles */
   }
-  
+
   /* Ajustes para el logo */
   .login-logo {
     padding: 2rem 0 1.2rem 0; /* Reducir padding en móviles */
     width: calc(100% + 3.6rem); /* Ajustar el ancho para el nuevo padding */
     margin: -2.2rem -1.8rem 1.5rem -1.8rem; /* Ajustar margen negativo */
   }
-  
+
   .login-logo img {
     height: 75px; /* Logo más pequeño en móviles */
   }
-  
+
   /* Ajustes para el texto */
   .login-header h1 {
     font-size: 1.4rem;
   }
-  
+
   .login-header p {
     font-size: 0.9rem;
     max-width: 100%;
   }
-  
+
   /* Ajustes para formularios */
   .form-group input {
     padding: 0.8rem 1rem;
     font-size: 1rem;
   }
-  
+
   /* Ajustes para botón */
   .login-button {
     padding: 0.9rem;
@@ -220,22 +239,22 @@
   .login-container {
     padding: 10px;
   }
-  
+
   .login-card {
     padding: 1.8rem 1.4rem;
     max-width: 95%;
   }
-  
+
   .login-logo {
     padding: 1.5rem 0 1rem 0;
     width: calc(100% + 2.8rem);
     margin: -1.8rem -1.4rem 1.2rem -1.4rem;
   }
-  
+
   .login-logo img {
     height: 60px;
   }
-  
+
   .login-header {
     margin-bottom: 1.5rem;
     margin-top: 2rem;
