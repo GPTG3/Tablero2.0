@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
-import "./HistorialEstados.css";
+import styles from "./HistorialEstados.module.css";
 
 const HistorialEstados = () => {
   const [historial, setHistorial] = useState([]);
@@ -8,7 +8,7 @@ const HistorialEstados = () => {
   const [estadoSeleccionado, setEstadoSeleccionado] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [notificacion, setNotificacion] = useState(null);
-  const [filtro, setFiltro] = useState('');
+  const [filtro, setFiltro] = useState("");
 
   // Obtener el token y decodificar
   const token = localStorage.getItem("token");
@@ -51,7 +51,7 @@ const HistorialEstados = () => {
   useEffect(() => {
     const fetchEstadosGuardados = async () => {
       if (!profesor) return;
-      
+
       try {
         const response = await fetch(
           `http://localhost:3001/estados?profesor=${profesor}`,
@@ -85,9 +85,9 @@ const HistorialEstados = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           estado: estadoSeleccionado.estado,
-          profesor 
+          profesor,
         }),
       });
 
@@ -111,26 +111,26 @@ const HistorialEstados = () => {
     mostrarNotificacion("Estado eliminado del historial", "exito");
     cerrarPopup();
   };
-  
+
   const mostrarNotificacion = (mensaje, tipo) => {
     setNotificacion({ mensaje, tipo });
     setTimeout(() => setNotificacion(null), 5000);
   };
 
   // Filtrar el historial según el texto de búsqueda
-  const historialFiltrado = historial.filter(
-    estado => estado.estado.toLowerCase().includes(filtro.toLowerCase())
+  const historialFiltrado = historial.filter((estado) =>
+    estado.estado.toLowerCase().includes(filtro.toLowerCase())
   );
 
   const formatearFecha = (fechaStr) => {
     try {
       const fecha = new Date(fechaStr);
-      return fecha.toLocaleDateString('es-ES', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
+      return fecha.toLocaleDateString("es-ES", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
       });
     } catch (e) {
       return fechaStr;
@@ -138,144 +138,191 @@ const HistorialEstados = () => {
   };
 
   return (
-    <div className="contenedor-principal">
+    <div className={styles["contenedor-principal"]}>
       {notificacion && (
-        <div className={`notificacion notificacion-${notificacion.tipo}`}>
-          <div className="notificacion-icono">
+        <div
+          className={`${styles.notificacion} ${
+            styles[`notificacion-${notificacion.tipo}`]
+          }`}
+        >
+          <div className={styles["notificacion-icono"]}>
             {notificacion.tipo === "exito" && "✅"}
             {notificacion.tipo === "error" && "❌"}
             {notificacion.tipo === "advertencia" && "⚠️"}
           </div>
-          <div className="notificacion-mensaje">{notificacion.mensaje}</div>
-          <button onClick={() => setNotificacion(null)} className="notificacion-cerrar">×</button>
+          <div className={styles["notificacion-mensaje"]}>
+            {notificacion.mensaje}
+          </div>
+          <button
+            onClick={() => setNotificacion(null)}
+            className={styles["notificacion-cerrar"]}
+          >
+            ×
+          </button>
         </div>
       )}
 
-      <div className="dashboard-header">
-        <div className="dashboard-titulo">
-          <h1 className="titulo-bienvenida">
-            <span className="titulo-principal">Historial de Estados</span>
-            <span className="mensaje-bienvenida">
-              <span className="emoji-icon">📋</span> 
+      <div className={styles["dashboard-header"]}>
+        <div className={styles["dashboard-titulo"]}>
+          <h1 className={styles["titulo-bienvenida"]}>
+            <span className={styles["titulo-principal"]}>
+              Historial de Estados
+            </span>
+            <span className={styles["mensaje-bienvenida"]}>
+              <span className={styles["emoji-icon"]}>📋</span>
               Registro completo de estados enviados al tablero
             </span>
           </h1>
         </div>
-        
-        <div className="dashboard-stats">
-          <div className="stat-card">
-            <div className="stat-valor">{historial.length}</div>
-            <div className="stat-label">Estados Enviados</div>
+
+        <div className={styles["dashboard-stats"]}>
+          <div className={styles["stat-card"]}>
+            <div className={styles["stat-valor"]}>{historial.length}</div>
+            <div className={styles["stat-label"]}>Estados Enviados</div>
           </div>
-          <div className="stat-card">
-            <div className="stat-valor">{estadosGuardados.length}</div>
-            <div className="stat-label">Estados Guardados</div>
+          <div className={styles["stat-card"]}>
+            <div className={styles["stat-valor"]}>
+              {estadosGuardados.length}
+            </div>
+            <div className={styles["stat-label"]}>Estados Guardados</div>
           </div>
         </div>
       </div>
 
-      <div className="panel-tablero">
-        <div className="panel-header">
-          <h2 className="titulo-panel">Registro Histórico de Estados</h2>
-          <div className="campo-busqueda">
+      <div className={styles["panel-tablero"]}>
+        <div className={styles["panel-header"]}>
+          <h2 className={styles["titulo-panel"]}>
+            Registro Histórico de Estados
+          </h2>
+          <div className={styles["campo-busqueda"]}>
             <input
               type="text"
               placeholder="Filtrar estados..."
               value={filtro}
               onChange={(e) => setFiltro(e.target.value)}
-              className="input-busqueda"
+              className={styles["input-busqueda"]}
             />
           </div>
         </div>
-        
-        <div className="historial-grid">
+
+        <div className={styles["historial-grid"]}>
           {cargando ? (
-            <div className="cargando-contenedor">
-              <div className="cargador-spinner"></div>
+            <div className={styles["cargando-contenedor"]}>
+              <div className={styles["cargador-spinner"]}></div>
               <p>Cargando historial...</p>
             </div>
           ) : historialFiltrado.length > 0 ? (
             historialFiltrado.map((estado) => (
               <div
                 key={estado.id}
-                className="tarjeta tarjeta-historial"
+                className={`${styles.tarjeta} ${styles["tarjeta-historial"]}`}
                 onClick={() => abrirPopup(estado)}
               >
-                <div className="tarjeta-header">
+                <div className={styles["tarjeta-header"]}>
                   <h3>Estado #{estado.id}</h3>
-                  <div className={`tarjeta-badge ${estadosGuardados.includes(estado.estado) ? 'guardado' : ''}`}>
-                    {estadosGuardados.includes(estado.estado) ? 'Guardado' : 'No guardado'}
+                  <div
+                    className={`${styles["tarjeta-badge"]} ${
+                      estadosGuardados.includes(estado.estado)
+                        ? styles.guardado
+                        : ""
+                    }`}
+                  >
+                    {estadosGuardados.includes(estado.estado)
+                      ? "Guardado"
+                      : "No guardado"}
                   </div>
                 </div>
-                
-                <div className="estado-contenido">
-                  <p className="estado-texto">{estado.estado}</p>
+
+                <div className={styles["estado-contenido"]}>
+                  <p className={styles["estado-texto"]}>{estado.estado}</p>
                 </div>
-                
-                <div className="tarjeta-footer">
-                  <div className="fecha-info">
-                    <span className="fecha-icono">📅</span>
+
+                <div className={styles["tarjeta-footer"]}>
+                  <div className={styles["fecha-info"]}>
+                    <span className={styles["fecha-icono"]}>📅</span>
                     {formatearFecha(estado.fecha)}
                   </div>
                 </div>
               </div>
             ))
           ) : (
-            <div className="mensaje-vacio">
-              <div className="mensaje-vacio-icono">📭</div>
+            <div className={styles["mensaje-vacio"]}>
+              <div className={styles["mensaje-vacio-icono"]}>📭</div>
               <p>No se encontraron estados en el historial</p>
-              {filtro && <button className="boton boton-limpiar" onClick={() => setFiltro('')}>Limpiar filtro</button>}
+              {filtro && (
+                <button
+                  className={styles["boton boton-limpiar"]}
+                  onClick={() => setFiltro("")}
+                >
+                  Limpiar filtro
+                </button>
+              )}
             </div>
           )}
         </div>
       </div>
 
       {estadoSeleccionado && (
-        <div className="popup-fondo">
-          <div className="popup">
-            <div className="popup-header">
+        <div className={styles["popup-fondo"]}>
+          <div className={styles["popup"]}>
+            <div className={styles["popup-header"]}>
               <h3>Detalles del Estado</h3>
-              <button className="popup-cerrar" onClick={cerrarPopup}>×</button>
+              <button className={styles["popup-cerrar"]} onClick={cerrarPopup}>
+                ×
+              </button>
             </div>
-            
-            <div className="popup-contenido">
-              <div className="popup-detalle">
-                <span className="detalle-etiqueta">Estado:</span>
-                <p className="detalle-texto">{estadoSeleccionado.estado}</p>
+
+            <div className={styles["popup-contenido"]}>
+              <div className={styles["popup-detalle"]}>
+                <span className={styles["detalle-etiqueta"]}>Estado:</span>
+                <p className={styles["detalle-texto"]}>
+                  {estadoSeleccionado.estado}
+                </p>
               </div>
-              
-              <div className="popup-detalle">
-                <span className="detalle-etiqueta">Fecha:</span>
-                <p className="detalle-texto">{formatearFecha(estadoSeleccionado.fecha)}</p>
+
+              <div className={styles["popup-detalle"]}>
+                <span className={styles["detalle-etiqueta"]}>Fecha:</span>
+                <p className={styles["detalle-texto"]}>
+                  {formatearFecha(estadoSeleccionado.fecha)}
+                </p>
               </div>
-              
-              <div className="popup-detalle">
-                <span className="detalle-etiqueta">Profesor:</span>
-                <p className="detalle-texto">{estadoSeleccionado.profesor}</p>
+
+              <div className={styles["popup-detalle"]}>
+                <span className={styles["detalle-etiqueta"]}>Profesor:</span>
+                <p className={styles["detalle-texto"]}>
+                  {estadoSeleccionado.profesor}
+                </p>
               </div>
-              
-              <div className="popup-detalle">
-                <span className="detalle-etiqueta">Estado guardado:</span>
-                <p className="detalle-indicador">
-                  {estadosGuardados.includes(estadoSeleccionado.estado) 
-                    ? <span className="indicador-si">✓ Sí</span> 
-                    : <span className="indicador-no">✗ No</span>}
+
+              <div className={styles["popup-detalle"]}>
+                <span className={styles["detalle-etiqueta"]}>
+                  Estado guardado:
+                </span>
+                <p className={styles["detalle-indicador"]}>
+                  {estadosGuardados.includes(estadoSeleccionado.estado) ? (
+                    <span className={styles["indicador-si"]}>✓ Sí</span>
+                  ) : (
+                    <span className={styles["indicador-no"]}>✗ No</span>
+                  )}
                 </p>
               </div>
             </div>
-            
-            <div className="popup-botones">
+
+            <div className={styles["popup-botones"]}>
               {!estadosGuardados.includes(estadoSeleccionado.estado) && (
                 <button
-                  className="boton boton-guardar"
+                  className={`${styles.boton} ${styles["boton-guardar"]}`}
                   onClick={guardarEstadoEnBaseDeDatos}
                 >
-                  <span className="boton-icono">💾</span>
+                  <span className={styles["boton-icono"]}>💾</span>
                   Guardar Estado
                 </button>
               )}
-              <button className="boton boton-limpiar" onClick={eliminarEstado}>
-                <span className="boton-icono">🗑️</span>
+              <button
+                className={`${styles.boton} ${styles["boton-limpiar"]}`}
+                onClick={eliminarEstado}
+              >
+                <span className={styles["boton-icono"]}>🗑️</span>
                 Eliminar
               </button>
               <button className="boton boton-cancelar" onClick={cerrarPopup}>

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import "./Login.css";
 import logo from "../../assets/images/logo2.png"; // Cambiado para usar el logo correcto
 import { Link } from "react-router-dom";
+import styles from "./Login.module.css"; // Asegúrate de tener un archivo CSS para estilos
 
 function Login({ onLogin }) {
   const [email, setEmail] = useState("");
@@ -50,28 +50,28 @@ function Login({ onLogin }) {
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
-        <div className="login-logo">
+    <div className={styles["login-container"]}>
+      <div className={styles["login-card"]}>
+        <div className={styles["login-logo"]}>
           <img src={logo} alt="Tablero 2.0" />
         </div>
 
-        <div className="login-header">
+        <div className={styles["login-header"]}>
           <h1>Inicio Sesión</h1>
           <p>Introduce tus credenciales para continuar</p>
         </div>
 
         {error && (
-          <div className="login-error">
-            <div className="error-icon">❌</div>
-            <div className="error-message">{error}</div>
+          <div className={styles["login-error"]}>
+            <div className={styles["error-icon"]}>❌</div>
+            <div className={styles["error-message"]}>{error}</div>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="login-form">
-          <div className="form-group">
+        <form onSubmit={handleSubmit} className={styles["login-form"]}>
+          <div className={styles["form-group"]}>
             <label htmlFor="email">
-              <span className="form-icon">✉️</span> 
+              <span className={styles["form-icon"]}>✉️</span>
               Correo Electrónico
             </label>
             <input
@@ -84,9 +84,9 @@ function Login({ onLogin }) {
             />
           </div>
 
-          <div className="form-group">
+          <div className={styles["form-group"]}>
             <label htmlFor="password">
-              <span className="form-icon">🔒</span> 
+              <span className={styles["form-icon"]}>🔒</span>
               Contraseña
             </label>
             <input
@@ -99,22 +99,26 @@ function Login({ onLogin }) {
             />
           </div>
 
-          <button type="submit" className="login-button" disabled={isLoading}>
+          <button
+            type="submit"
+            className={styles["login-button"]}
+            disabled={isLoading}
+          >
             {isLoading ? (
               <>
-                <span className="spinner"></span> Iniciando...
+                <span className={styles["spinner"]}></span> Iniciando...
               </>
             ) : (
               <>
-                <span className="button-icon">🔑</span> Iniciar Sesión
+                <span className={styles["button-icon"]}>🔑</span> Iniciar Sesión
               </>
             )}
           </button>
         </form>
 
-        <div className="login-footer">
+        <div className={styles["login-footer"]}>
           <p>¿No tienes cuenta?</p>
-          <Link to="/register" className="register-link">
+          <Link to="/register" className={styles["register-link"]}>
             Registrarse
           </Link>
         </div>
