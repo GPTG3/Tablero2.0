@@ -5,6 +5,51 @@ const db = require("./db");
 const PORT = 3001;
 const jwt = require("jsonwebtoken");
 const SECRET_KEY = "tu_clave_secreta";
+const http = require("http");
+const mqtt = require("mqtt");
+const WebSocket = require("ws");
+
+// --- Crear servidor HTTP para WebSocket ---
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
+
+// --- MQTT Configuración ---
+const mqttClient = mqtt.connect("mqtt://34.176.212.36"); // AQUI CAMBIAR IP
+
+mqttClient.on("connect", () => {
+  console.log("Conectado a MQTT broker");
+  mqttClient.subscribe("matriz/texto"); // escucha al ESP32
+});
+
+// MQTT: cuando se recibe un mensaje desde el ESP32
+mqttClient.on("message", (topic, message) => {
+  console.log(`📩 Mensaje recibido [${topic}]: ${message.toString()}`);
+  // reenviar a todos los clientes WebSocket conectados
+  wss.clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(message.toString());
+    }
+  });
+});
+
+// WebSocket: cuando se recibe mensaje del frontend
+wss.on("connection", (ws) => {
+  console.log("🔌 Cliente WebSocket conectado");
+
+  ws.on("message", (message) => {
+    console.log("➡️ Mensaje desde frontend:", message);
+    mqttClient.publish("matriz/texto", message); // reenviar al ESP32
+  });
+
+  ws.on("close", () => {
+    console.log("🔌 Cliente WebSocket desconectado");
+  });
+});
+
+// Iniciar servidor HTTP (WebSocket + Express)
+server.listen(PORT, () => {
+  console.log(`🚀 Backend escuchando en http://localhost:${PORT}`);
+});
 
 const authenticateToken = (req, res, next) => {
   const token = req.headers["authorization"]?.split(" ")[1]; // Obtener el token del encabezado Authorization
@@ -28,6 +73,7 @@ app.get("/perfil", authenticateToken, (req, res) => {
   res.json({ message: "Acceso autorizado", user: req.user });
 });
 
+
 app.use(cors()); // Habilitar CORS
 app.use(express.json());
 
@@ -43,6 +89,31 @@ app.get("/historial", authenticateToken, (req, res) => {
     } else {
       res.json(rows);
     }
+  });
+});
+
+app.post("/enviar-mqtt", (req, res) => {
+  const { ip, topic, mensaje } = req.body;
+
+  if (!ip || !topic || !mensaje) {
+    return res.status(400).json({ error: "Faltan datos: ip, topic o mensaje" });
+  }
+
+  const brokerUrl = `mqtt://${ip}`;
+  const cliente = mqtt.connect(brokerUrl);
+
+  cliente.on("connect", () => {
+    console.log(`Conectado a broker en ${ip}`);
+    cliente.publish(topic, mensaje, () => {
+      console.log(`Enviado a [${topic}]: ${mensaje}`);
+      cliente.end();
+      res.status(200).json({ message: "Mensaje enviado correctamente" });
+    });
+  });
+
+  cliente.on("error", (err) => {
+    console.error("Error MQTT:", err.message);
+    res.status(500).json({ error: "Error al conectar con el broker" });
   });
 });
 
@@ -96,6 +167,46 @@ app.get("/estados", (req, res) => {
       res.status(500).json({ error: err.message });
     } else {
       res.json(rows); // Asegúrate de que se devuelva un arreglo
+    }
+  });
+});
+
+// Ruta para editar un estado
+app.put("/estados", (req, res) => {
+  const { estadoOriginal, nuevoEstado, profesor } = req.body;
+
+  if (!estadoOriginal || !nuevoEstado || !profesor) {
+    return res.status(400).json({ error: "Estado original, nuevo estado y profesor son requeridos" });
+  }
+
+  const query = "UPDATE estados SET estado = ? WHERE estado = ? AND profesor = ?";
+  db.run(query, [nuevoEstado, estadoOriginal, profesor], function (err) {
+    if (err) {
+      res.status(500).json({ error: err.message });
+    } else if (this.changes === 0) {
+      res.status(404).json({ error: "Estado no encontrado o no pertenece al profesor" });
+    } else {
+      res.status(200).json({ message: "Estado actualizado correctamente" });
+    }
+  });
+});
+
+// Ruta para eliminar un estado
+app.delete("/estados", (req, res) => {
+  const { estado, profesor } = req.body;
+
+  if (!estado || !profesor) {
+    return res.status(400).json({ error: "Estado y profesor son requeridos" });
+  }
+
+  const query = "DELETE FROM estados WHERE estado = ? AND profesor = ?";
+  db.run(query, [estado, profesor], function (err) {
+    if (err) {
+      res.status(500).json({ error: err.message });
+    } else if (this.changes === 0) {
+      res.status(404).json({ error: "Estado no encontrado o no pertenece al profesor" });
+    } else {
+      res.status(200).json({ message: "Estado eliminado correctamente" });
     }
   });
 });

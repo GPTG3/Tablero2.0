@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import "./Login.css";
-import logo from "../../logo.svg";
+import logo from "../../assets/images/logo2.png"; // Cambiado para usar el logo correcto
 import { Link } from "react-router-dom";
+import styles from "./Login.module.css"; // Asegúrate de tener un archivo CSS para estilos
 
 function Login({ onLogin }) {
   const [email, setEmail] = useState("");
@@ -19,8 +19,6 @@ function Login({ onLogin }) {
     }
 
     setIsLoading(true);
-
-    // USUARIO HARDOCODEADO: a@a:a
 
     try {
       const response = await fetch("http://localhost:3001/login", {
@@ -47,28 +45,35 @@ function Login({ onLogin }) {
 
     const token = localStorage.getItem("token");
     if (!token) {
-      setError(
-        "No se encontró un token de autenticación. Por favor, inicia sesión."
-      );
-      return;
-    } else {
-      console.log("Token de autenticación:", token);
+      console.log("No se encontró un token de autenticación.");
     }
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
-        <div className="login-header">
-          <h1>Bienvenido profesor</h1>
-          <p>Ingresa tus credenciales para continuar</p>
+    <div className={styles["login-container"]}>
+      <div className={styles["login-card"]}>
+        <div className={styles["login-logo"]}>
+          <img src={logo} alt="Tablero 2.0" />
         </div>
 
-        <form onSubmit={handleSubmit} className="login-form">
-          {error && <div className="login-error">{error}</div>}
+        <div className={styles["login-header"]}>
+          <h1>Inicio Sesión</h1>
+          <p>Introduce tus credenciales para continuar</p>
+        </div>
 
-          <div className="form-group">
-            <label htmlFor="email">Correo Electrónico</label>
+        {error && (
+          <div className={styles["login-error"]}>
+            <div className={styles["error-icon"]}>❌</div>
+            <div className={styles["error-message"]}>{error}</div>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className={styles["login-form"]}>
+          <div className={styles["form-group"]}>
+            <label htmlFor="email">
+              <span className={styles["form-icon"]}>✉️</span>
+              Correo Electrónico
+            </label>
             <input
               type="email"
               id="email"
@@ -79,8 +84,11 @@ function Login({ onLogin }) {
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="password">Contraseña</label>
+          <div className={styles["form-group"]}>
+            <label htmlFor="password">
+              <span className={styles["form-icon"]}>🔒</span>
+              Contraseña
+            </label>
             <input
               type="password"
               id="password"
@@ -91,15 +99,29 @@ function Login({ onLogin }) {
             />
           </div>
 
-          <div className="form-footer">
-            <button type="submit" className="login-button" disabled={isLoading}>
-              {isLoading ? "Iniciando..." : "Iniciar Sesión"}
-            </button>
-            <Link to="/register" className="forgot-password">
-              Crear cuenta
-            </Link>
-          </div>
+          <button
+            type="submit"
+            className={styles["login-button"]}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <span className={styles["spinner"]}></span> Iniciando...
+              </>
+            ) : (
+              <>
+                <span className={styles["button-icon"]}>🔑</span> Iniciar Sesión
+              </>
+            )}
+          </button>
         </form>
+
+        <div className={styles["login-footer"]}>
+          <p>¿No tienes cuenta?</p>
+          <Link to="/register" className={styles["register-link"]}>
+            Registrarse
+          </Link>
+        </div>
       </div>
     </div>
   );
