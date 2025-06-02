@@ -15,7 +15,7 @@ const PanelTablero = () => {
   const [ultimaPing, setUltimaPing] = useState(null);
   const [modalAbierto, setModalAbierto] = useState(false);
   const [ip, setIp] = useState("");
-  const [topico, setTopico] = useState("");
+  const [topic, setTopico] = useState("");
   const [mensajeModal, setMensajeModal] = useState("");
   // Nuevo estado para el color del texto
   const [colorTexto, setColorTexto] = useState("#CC0000"); // Color rojo por defecto (--color-primario)
@@ -209,7 +209,7 @@ const PanelTablero = () => {
   };
 
   const enviarAMQTT = async () => {
-    if (!ip || !topico || !mensajeModal) {
+    if (!ip || !topic || !mensajeModal) {
       mostrarNotificacion("Completa todos los campos del modal", "advertencia");
       return;
     }
@@ -222,7 +222,7 @@ const PanelTablero = () => {
         },
         body: JSON.stringify({
           ip,
-          topico,
+          topic,
           mensaje: mensajeModal,
         }),
       });
@@ -359,7 +359,7 @@ const PanelTablero = () => {
             Tópico:
             <input
               type="text"
-              value={topico}
+              value={topic}
               onChange={(e) => setTopico(e.target.value)}
               placeholder="Ej: tablero/estado"
             />

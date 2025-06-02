@@ -14,7 +14,7 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
 // --- MQTT Configuración ---
-const mqttClient = mqtt.connect("mqtt://34.176.60.77"); // AQUI CAMBIAR IP
+const mqttClient = mqtt.connect("mqtt://34.176.212.36"); // AQUI CAMBIAR IP
 
 mqttClient.on("connect", () => {
   console.log("Conectado a MQTT broker");
@@ -73,6 +73,25 @@ app.get("/perfil", authenticateToken, (req, res) => {
   res.json({ message: "Acceso autorizado", user: req.user });
 });
 
+
+app.use(cors()); // Habilitar CORS
+app.use(express.json());
+
+// Rutas existentes
+app.get("/historial", authenticateToken, (req, res) => {
+  const { mail } = req.user; // Obtener el correo del usuario desde el token
+
+  const query =
+    "SELECT * FROM historial WHERE profesor = ? ORDER BY fecha DESC";
+  db.all(query, [mail], (err, rows) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+    } else {
+      res.json(rows);
+    }
+  });
+});
+
 app.post("/enviar-mqtt", (req, res) => {
   const { ip, topic, mensaje } = req.body;
 
@@ -95,25 +114,6 @@ app.post("/enviar-mqtt", (req, res) => {
   cliente.on("error", (err) => {
     console.error("Error MQTT:", err.message);
     res.status(500).json({ error: "Error al conectar con el broker" });
-  });
-});
-
-
-app.use(cors()); // Habilitar CORS
-app.use(express.json());
-
-// Rutas existentes
-app.get("/historial", authenticateToken, (req, res) => {
-  const { mail } = req.user; // Obtener el correo del usuario desde el token
-
-  const query =
-    "SELECT * FROM historial WHERE profesor = ? ORDER BY fecha DESC";
-  db.all(query, [mail], (err, rows) => {
-    if (err) {
-      res.status(500).json({ error: err.message });
-    } else {
-      res.json(rows);
-    }
   });
 });
 
