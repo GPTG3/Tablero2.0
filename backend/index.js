@@ -73,6 +73,32 @@ app.get("/perfil", authenticateToken, (req, res) => {
   res.json({ message: "Acceso autorizado", user: req.user });
 });
 
+app.post("/enviar-mqtt", (req, res) => {
+  const { ip, topic, mensaje } = req.body;
+
+  if (!ip || !topic || !mensaje) {
+    return res.status(400).json({ error: "Faltan datos: ip, topic o mensaje" });
+  }
+
+  const brokerUrl = `mqtt://${ip}`;
+  const cliente = mqtt.connect(brokerUrl);
+
+  cliente.on("connect", () => {
+    console.log(`Conectado a broker en ${ip}`);
+    cliente.publish(topic, mensaje, () => {
+      console.log(`Enviado a [${topic}]: ${mensaje}`);
+      cliente.end();
+      res.status(200).json({ message: "Mensaje enviado correctamente" });
+    });
+  });
+
+  cliente.on("error", (err) => {
+    console.error("Error MQTT:", err.message);
+    res.status(500).json({ error: "Error al conectar con el broker" });
+  });
+});
+
+
 app.use(cors()); // Habilitar CORS
 app.use(express.json());
 

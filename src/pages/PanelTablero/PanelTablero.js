@@ -13,6 +13,10 @@ const PanelTablero = () => {
   const [notificacion, setNotificacion] = useState(null);
   const [estadoEnviado, setEstadoEnviado] = useState(false);
   const [ultimaPing, setUltimaPing] = useState(null);
+  const [modalAbierto, setModalAbierto] = useState(false);
+  const [ip, setIp] = useState("");
+  const [topico, setTopico] = useState("");
+  const [mensajeModal, setMensajeModal] = useState("");
   // Nuevo estado para el color del texto
   const [colorTexto, setColorTexto] = useState("#CC0000"); // Color rojo por defecto (--color-primario)
 
@@ -204,6 +208,40 @@ const PanelTablero = () => {
     }
   };
 
+  const enviarAMQTT = async () => {
+    if (!ip || !topico || !mensajeModal) {
+      mostrarNotificacion("Completa todos los campos del modal", "advertencia");
+      return;
+    }
+    setCargando(true);
+    try {
+      const response = await fetch("http://localhost:3001/enviar-mqtt", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ip,
+          topico,
+          mensaje: mensajeModal,
+        }),
+      });
+      if (response.ok) {
+        mostrarNotificacion("Mensaje enviado al otro tablero", "exito");
+        setModalAbierto(false);
+        setIp("");
+        setTopico("");
+        setMensajeModal("");
+      } else {
+        mostrarNotificacion("Error al enviar el mensaje", "error");
+      }
+    } catch (error) {
+      mostrarNotificacion("Error de conexión con el servidor", "error");
+    } finally {
+      setCargando(false);
+    }
+  };
+
   // Modificamos la función de envío para incluir el color
   const aHistorial = async () => {
     if (!estado) {
@@ -302,6 +340,55 @@ const PanelTablero = () => {
             ×
           </button>
         </div>
+      )}
+
+      {modalAbierto && (
+      <div className={styles["modal-overlay"]}>
+        <div className={styles["modal"]}>
+          <h2>Enviar mensaje MQTT</h2>
+          <label>
+            IP:
+            <input
+              type="text"
+              value={ip}
+              onChange={(e) => setIp(e.target.value)}
+              placeholder="Ej: 192.168.1.100"
+            />
+          </label>
+          <label>
+            Tópico:
+            <input
+              type="text"
+              value={topico}
+              onChange={(e) => setTopico(e.target.value)}
+              placeholder="Ej: tablero/estado"
+            />
+          </label>
+          <label>
+            Mensaje:
+            <input
+              type="text"
+              value={mensajeModal}
+              onChange={(e) => setMensajeModal(e.target.value)}
+              placeholder="Mensaje a enviar"
+            />
+          </label>
+          <div style={{ marginTop: 16, display: "flex", gap: 8 }}>
+            <button
+              className={`${styles["boton"]} ${styles["boton-enviar"]}`}
+              onClick={enviarAMQTT}
+            >
+              Enviar
+            </button>
+            <button
+              className={`${styles["boton"]} ${styles["boton-enviar"]}`}
+              onClick={() => setModalAbierto(false)}
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      </div>
       )}
 
       <div className={styles["dashboard-header"]}>
@@ -494,6 +581,12 @@ const PanelTablero = () => {
                 >
                   <span className={styles["boton-icono"]}>📡</span>
                   Enviar al Tablero
+                </button>
+                <button
+                  className={`${styles["boton"]} ${styles["boton-enviar"]}`}
+                  onClick={() => setModalAbierto(true)}
+                >
+                  Enviar a otro tablero
                 </button>
               </div>
             </div>
