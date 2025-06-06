@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 import styles from "./PanelTablero.module.css"; // Asegúrate de tener un archivo CSS para estilos
+import { useWebSocket } from "../../context/WebSocketContext";
 
 const PanelTablero = () => {
   const [mensaje, setMensaje] = useState("");
   const [estado, setEstado] = useState("");
   const [opcionesEstado, setOpcionesEstado] = useState([]);
-  const [socket, setSocket] = useState(null);
   const [tableroConectado, setTableroConectado] = useState(false);
   const [mensajeDesdeESP, setMensajeDesdeESP] = useState("");
   const [cargando, setCargando] = useState(false);
@@ -22,21 +22,17 @@ const PanelTablero = () => {
 
   const token = localStorage.getItem("token");
   const profesor = token ? jwtDecode(token).mail : null;
+  const socket = useWebSocket();
 
   // Conexión WebSocket al backend
   useEffect(() => {
-    const ws = new WebSocket("ws://localhost:3001");
+    if (!socket) return;
 
-    ws.onopen = () => {
-      console.log("✅ WebSocket conectado");
-      setSocket(ws);
-    };
-
-    ws.onmessage = (event) => {
+    socket.onmessage = (event) => {
       console.log("📩 Mensaje recibido desde ESP32:", event.data);
       setMensajeDesdeESP(event.data);
-      setUltimaPing(new Date()); // Actualizar timestamp de última comunicación
-      setTableroConectado(true); // El tablero está conectado si recibimos mensajes
+      setUltimaPing(new Date());
+      setTableroConectado(true);
 
       // Animación de nuevo mensaje
       const respuestaElement = document.querySelector(".respuesta-esp");
@@ -48,27 +44,23 @@ const PanelTablero = () => {
       }
     };
 
-    ws.onerror = (error) => {
+    socket.onerror = (error) => {
       console.error("❌ Error WebSocket:", error);
-      setTableroConectado(false); // Si hay error, el tablero está desconectado
+      setTableroConectado(false);
       mostrarNotificacion("Error de conexión con el dispositivo", "error");
     };
 
-    ws.onclose = () => {
+    socket.onclose = () => {
       console.log("🔌 WebSocket desconectado");
-      setSocket(null);
       setTableroConectado(false);
     };
 
     // Verificar periódicamente si el tablero está activo (cada 10 segundos)
     const intervalo = setInterval(() => {
-      // Si no hemos recibido un ping en los últimos 15 segundos, consideramos que el tablero está desconectado
       if (ultimaPing && new Date() - ultimaPing > 15000) {
         setTableroConectado(false);
       }
-
-      // Enviar un ping para verificar si el tablero responde
-      if (ws.readyState === WebSocket.OPEN) {
+      if (socket.readyState === WebSocket.OPEN) {
         try {
           console.log("📤 Ping enviado al ESP32");
         } catch (error) {
@@ -78,9 +70,12 @@ const PanelTablero = () => {
     }, 10000);
 
     return () => {
-      ws.close();
+      clearInterval(intervalo);
+      socket.onmessage = null;
+      socket.onerror = null;
+      socket.onclose = null;
     };
-  }, [ultimaPing]);
+  }, [socket, ultimaPing]);
 
   // Obtener estados del profesor
   useEffect(() => {
