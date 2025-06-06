@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors"); // Importar cors
 const app = express();
-const db = require("./db");
+const { db, guardarTablero, obtenerTablerosPorProfesor } = require("./db");
 const PORT = 3001;
 const jwt = require("jsonwebtoken");
 const SECRET_KEY = "tu_clave_secreta";
@@ -94,7 +94,11 @@ app.get("/historial", authenticateToken, (req, res) => {
 
 // Obtener todos los tableros
 app.get("/tableros", (req, res) => {
-  db.all("SELECT * FROM tableros", (err, rows) => {
+  const { profesor } = req.query;
+  if (!profesor) {
+    return res.status(400).json({ error: "Profesor requerido" });
+  }
+  obtenerTablerosPorProfesor(profesor, (err, rows) => {
     if (err) {
       res.status(500).json({ error: err.message });
     } else {
@@ -105,16 +109,15 @@ app.get("/tableros", (req, res) => {
 
 // Guardar un nuevo tablero
 app.post("/tableros", (req, res) => {
-  const { nombre, ip, topico, formato } = req.body;
-  if (!nombre || !ip || !topico) {
-    return res.status(400).json({ error: "Faltan datos requeridos" });
+  const { nombre, ip, topico, formato, profesor } = req.body;
+  if (!nombre || !ip || !topico || !profesor) {
+    return res.status(400).json({ error: "Faltan campos requeridos" });
   }
-  const query = "INSERT INTO tableros (nombre, ip, topico, formato) VALUES (?, ?, ?, ?)";
-  db.run(query, [nombre, ip, topico, formato], function (err) {
+  guardarTablero({ nombre, ip, topico, formato, profesor }, (err, id) => {
     if (err) {
       res.status(500).json({ error: err.message });
     } else {
-      res.status(201).json({ id: this.lastID });
+      res.status(201).json({ id });
     }
   });
 });

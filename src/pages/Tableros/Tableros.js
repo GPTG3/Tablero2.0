@@ -14,15 +14,16 @@ const Tableros = () => {
 
   // Obtener el usuario autenticado
   const user = JSON.parse(localStorage.getItem("user") || "{}");
-  const profesor = user.email;
+  const profesor = user.mail;
 
   // Cargar tableros al iniciar
-    useEffect(() => {
-    fetch("http://localhost:3001/tableros")
-        .then((res) => res.json())
-        .then((data) => setTableros(Array.isArray(data) ? data : []))
-        .catch(() => setTableros([]));
-    }, []);
+  useEffect(() => {
+    if (!profesor) return;
+    fetch(`http://localhost:3001/tableros?profesor=${profesor}`)
+      .then((res) => res.json())
+      .then((data) => setTableros(Array.isArray(data) ? data : []))
+      .catch(() => setTableros([]));
+  }, [profesor]);
 
   // Manejar cambios en el formulario
   const handleChange = (e) => {
@@ -30,21 +31,20 @@ const Tableros = () => {
   };
 
   // Guardar un nuevo tablero
-    const handleGuardarTablero = async (e) => {
+  const handleGuardarTablero = async (e) => {
     e.preventDefault();
     const res = await fetch("http://localhost:3001/tableros", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(nuevoTablero),
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...nuevoTablero, profesor }),
     });
     if (res.ok) {
-        // Recargar la lista desde el backend para obtener el id correcto
-        fetch("http://localhost:3001/tableros")
+      fetch(`http://localhost:3001/tableros?profesor=${profesor}`)
         .then((res) => res.json())
         .then((data) => setTableros(Array.isArray(data) ? data : []));
-        setNuevoTablero({ nombre: "", ip: "", topico: "", formato: "" });
+      setNuevoTablero({ nombre: "", ip: "", topico: "", formato: "" });
     }
-    };
+  };
 
   // Seleccionar un tablero
   const handleSeleccionarTablero = (tablero) => {
