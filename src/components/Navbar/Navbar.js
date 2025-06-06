@@ -125,6 +125,14 @@ function Navbar({ user, handleLogout }) {
                 Historial
               </Link>
             </li>
+            <li>
+              <Link
+                to="/tableros"
+                className={location.pathname === "/tableros" ? styles.active : ""}
+              >
+                Tableros
+              </Link>
+            </li>
           </>
         )}
 

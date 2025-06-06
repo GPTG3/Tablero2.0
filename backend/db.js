@@ -40,6 +40,16 @@ db.serialize(() => {
     )
   `);
 
+  db.run(`
+    CREATE TABLE IF NOT EXISTS tableros (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      nombre TEXT NOT NULL,
+      ip TEXT NOT NULL,
+      topico TEXT NOT NULL,
+      formato TEXT
+    )
+  `);
+
 });
 
 module.exports = db;

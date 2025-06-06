@@ -590,23 +590,6 @@ const PanelTablero = () => {
                 </button>
               </div>
             </div>
-
-            {mensajeDesdeESP && (
-              <div
-                className={`${styles["tarjeta"]} ${styles["tarjeta-respuesta"]}`}
-              >
-                <div className={styles["tarjeta-header"]}>
-                  <h3>Respuesta del Dispositivo</h3>
-                  <div className={styles["indicador-tiempo"]}>Reciente</div>
-                </div>
-                <div className={styles["respuesta-esp"]}>
-                  <div className={styles["respuesta-icono"]}>🤖</div>
-                  <div className={styles["respuesta-mensaje"]}>
-                    {mensajeDesdeESP}
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
