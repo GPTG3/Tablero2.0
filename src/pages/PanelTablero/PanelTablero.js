@@ -28,49 +28,51 @@ const PanelTablero = () => {
   useEffect(() => {
     if (!socket) return;
 
-    socket.onmessage = (event) => {
-      console.log("📩 Mensaje recibido desde ESP32:", event.data);
-      setMensajeDesdeESP(event.data);
-      setUltimaPing(new Date());
-      setTableroConectado(true);
+    let pingTimeout;
 
-      // Animación de nuevo mensaje
-      const respuestaElement = document.querySelector(".respuesta-esp");
-      if (respuestaElement) {
-        respuestaElement.classList.add("nuevo-mensaje");
-        setTimeout(() => {
-          respuestaElement.classList.remove("nuevo-mensaje");
-        }, 1000);
+    socket.onmessage = (event) => {
+      if (event.data === "pong") {
+        setUltimaPing(new Date());
+        setTableroConectado(true);
+        clearTimeout(pingTimeout);
+      } else {
+        setMensajeDesdeESP(event.data);
+        setUltimaPing(new Date());
+        setTableroConectado(true);
+
+        // Animación de nuevo mensaje
+        const respuestaElement = document.querySelector(".respuesta-esp");
+        if (respuestaElement) {
+          respuestaElement.classList.add("nuevo-mensaje");
+          setTimeout(() => {
+            respuestaElement.classList.remove("nuevo-mensaje");
+          }, 1000);
+        }
       }
     };
 
     socket.onerror = (error) => {
-      console.error("❌ Error WebSocket:", error);
       setTableroConectado(false);
       mostrarNotificacion("Error de conexión con el dispositivo", "error");
     };
 
     socket.onclose = () => {
-      console.log("🔌 WebSocket desconectado");
       setTableroConectado(false);
     };
 
     // Verificar periódicamente si el tablero está activo (cada 10 segundos)
     const intervalo = setInterval(() => {
-      if (ultimaPing && new Date() - ultimaPing > 15000) {
-        setTableroConectado(false);
-      }
       if (socket.readyState === WebSocket.OPEN) {
-        try {
-          console.log("📤 Ping enviado al ESP32");
-        } catch (error) {
-          console.error("Error al enviar ping:", error);
-        }
+        //socket.send("ping");
+        pingTimeout = setTimeout(() => {
+          setTableroConectado(false);
+        }, 5000); // Si no responde pong en 5s, marcar como desconectado
       }
     }, 10000);
 
     return () => {
       clearInterval(intervalo);
+      clearTimeout(pingTimeout);
       socket.onmessage = null;
       socket.onerror = null;
       socket.onclose = null;
@@ -276,6 +278,11 @@ const PanelTablero = () => {
 
         // Enviar al ESP32 (agregamos el color como parte del mensaje)
         if (socket && socket.readyState === WebSocket.OPEN) {
+
+          if (mensaje == "ping") {
+            socket.send("pong");
+            return; // No mostrar "ping" en el display
+          }
           // Formato: COLOR:MENSAJE (ej: "#FF0000:Hola mundo")
           socket.send(`${colorTexto}:${estado}`);
           console.log(`📤 Estado enviado al ESP32: ${colorTexto}:${estado}`);
