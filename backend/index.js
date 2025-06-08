@@ -19,6 +19,12 @@ const mqttClient = mqtt.connect("mqtt://34.176.212.36"); // AQUI CAMBIAR IP
 mqttClient.on("connect", () => {
   console.log("Conectado a MQTT broker");
   mqttClient.subscribe("matriz/texto"); // escucha al ESP32
+
+  // Enviar ping cada 10 segundos al ESP32
+  setInterval(() => {
+    mqttClient.publish("matriz/texto", JSON.stringify({ type: "ping" }));
+    console.log("📤 Ping enviado al ESP32 desde backend");
+  }, 10000);
 });
 
 // MQTT: cuando se recibe un mensaje desde el ESP32
