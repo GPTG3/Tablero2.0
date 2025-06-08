@@ -7,7 +7,7 @@ const PanelTablero = () => {
   const [mensaje, setMensaje] = useState("");
   const [estado, setEstado] = useState("");
   const [opcionesEstado, setOpcionesEstado] = useState([]);
-  const [tableroConectado, setTableroConectado] = useState(false);
+  const [tableroConectado, setTableroConectado] = useState(null); // null = desconocido
   const [mensajeDesdeESP, setMensajeDesdeESP] = useState("");
   const [cargando, setCargando] = useState(false);
   const [notificacion, setNotificacion] = useState(null);
@@ -19,6 +19,8 @@ const PanelTablero = () => {
   const [mensajeModal, setMensajeModal] = useState("");
   // Nuevo estado para el color del texto
   const [colorTexto, setColorTexto] = useState("#CC0000"); // Color rojo por defecto (--color-primario)
+  const [backendConectado, setBackendConectado] = useState(null);
+  const [mqttConectado, setMqttConectado] = useState(null);
 
   const token = localStorage.getItem("token");
   const profesor = token ? jwtDecode(token).mail : null;
@@ -57,11 +59,13 @@ const PanelTablero = () => {
 
     // Verificar periódicamente si el tablero está activo (cada 10 segundos)
     const intervalo = setInterval(() => {
-      if (ultimaPing && new Date() - ultimaPing > 15000) {
+      if (ultimaPing && new Date() - ultimaPing > 5000) {
         setTableroConectado(false);
       }
       if (socket.readyState === WebSocket.OPEN) {
         try {
+          // Enviar un ping como JSON
+          socket.send(JSON.stringify({ type: "ping" }));
           console.log("📤 Ping enviado al ESP32");
         } catch (error) {
           console.error("Error al enviar ping:", error);
@@ -102,6 +106,28 @@ const PanelTablero = () => {
 
     fetchEstados();
   }, [profesor]);
+
+  useEffect(() => {
+    const checkStatus = async () => {
+      try {
+        const res = await fetch("http://localhost:3001/status");
+        if (res.ok) {
+          const data = await res.json();
+          setBackendConectado(data.backend);
+          setMqttConectado(data.mqtt);
+        } else {
+          setBackendConectado(false);
+          setMqttConectado(false);
+        }
+      } catch {
+        setBackendConectado(false);
+        setMqttConectado(false);
+      }
+    };
+    checkStatus();
+    const interval = setInterval(checkStatus, 10000);
+    return () => clearInterval(interval);
+  }, []);
 
   const manejarCambioMensaje = (e) => setMensaje(e.target.value);
   const manejarCambioEstado = (e) => setEstado(e.target.value);
@@ -409,25 +435,53 @@ const PanelTablero = () => {
           <div className={styles["stat-card"]}>
             <div
               className={`${styles["stat-indicador"]} ${
-                socket ? styles["conectado"] : styles["desconectado"]
+                socket && socket.readyState === WebSocket.OPEN
+                  ? styles["conectado"]
+                  : styles["desconectado"]
               }`}
             >
               ●
             </div>
             <div className={styles["stat-label"]}>
-              {socket ? "Servidor Conectado" : "Servidor Desconectado"}
+              {socket && socket.readyState === WebSocket.OPEN
+                ? "Servidor Conectado"
+                : "Servidor Desconectado"}
             </div>
           </div>
           <div className={styles["stat-card"]}>
-            <div
-              className={`${styles["stat-indicador"]} ${
-                tableroConectado ? styles["conectado"] : styles["desconectado"]
-              }`}
-            >
+            <div className={styles["stat-indicador"] + " " + (backendConectado ? styles["conectado"] : styles["desconectado"])}>
               ●
             </div>
             <div className={styles["stat-label"]}>
-              {tableroConectado ? "Tablero Conectado" : "Tablero Desconectado"}
+              {backendConectado === null
+                ? "Backend: Conectando..."
+                : backendConectado
+                  ? "Backend: Conectado"
+                  : "Backend: Desconectado"}
+            </div>
+          </div>
+          <div className={styles["stat-card"]}>
+            <div className={styles["stat-indicador"] + " " + (mqttConectado ? styles["conectado"] : styles["desconectado"])}>
+              ●
+            </div>
+            <div className={styles["stat-label"]}>
+              {mqttConectado === null
+                ? "MQTT: Conectando..."
+                : mqttConectado
+                  ? "MQTT: Conectado"
+                  : "MQTT: Desconectado"}
+            </div>
+          </div>
+          <div className={styles["stat-card"]}>
+            <div className={styles["stat-indicador"] + " " + (tableroConectado ? styles["conectado"] : styles["desconectado"])}>
+              ●
+            </div>
+            <div className={styles["stat-label"]}>
+              {tableroConectado === null
+                ? "Tablero: Conectando..."
+                : tableroConectado
+                  ? "Tablero: Conectado"
+                  : "Tablero: Desconectado"}
             </div>
           </div>
         </div>

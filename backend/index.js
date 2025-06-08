@@ -16,9 +16,25 @@ const wss = new WebSocket.Server({ server });
 // --- MQTT Configuración ---
 const mqttClient = mqtt.connect("mqtt://34.176.212.36"); // AQUI CAMBIAR IP
 
+let mqttConectado = false;
+
 mqttClient.on("connect", () => {
+  mqttConectado = true;
   console.log("Conectado a MQTT broker");
   mqttClient.subscribe("matriz/texto"); // escucha al ESP32
+});
+mqttClient.on("close", () => {
+  mqttConectado = false;
+});
+mqttClient.on("error", () => {
+  mqttConectado = false;
+});
+
+app.get("/status", (req, res) => {
+  res.json({
+    backend: true,
+    mqtt: mqttConectado,
+  });
 });
 
 // MQTT: cuando se recibe un mensaje desde el ESP32
