@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors"); // Importar cors
 const app = express();
-const db = require("./db");
+const { db, guardarTablero, obtenerTablerosPorProfesor } = require("./db");
 const PORT = 3001;
 const jwt = require("jsonwebtoken");
 const SECRET_KEY = "tu_clave_secreta";
@@ -19,6 +19,12 @@ const mqttClient = mqtt.connect("mqtt://34.176.212.36"); // AQUI CAMBIAR IP
 mqttClient.on("connect", () => {
   console.log("Conectado a MQTT broker");
   mqttClient.subscribe("matriz/texto"); // escucha al ESP32
+
+  // Enviar ping cada 10 segundos al ESP32
+  setInterval(() => {
+    mqttClient.publish("matriz/texto", JSON.stringify({ type: "ping" }));
+    console.log("📤 Ping enviado al ESP32 desde backend");
+  }, 10000);
 });
 
 // MQTT: cuando se recibe un mensaje desde el ESP32
@@ -47,7 +53,7 @@ wss.on("connection", (ws) => {
 });
 
 // Iniciar servidor HTTP (WebSocket + Express)
-server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0',() => {
   console.log(`🚀 Backend escuchando en http://localhost:${PORT}`);
 });
 
@@ -92,6 +98,36 @@ app.get("/historial", authenticateToken, (req, res) => {
   });
 });
 
+// Obtener todos los tableros
+app.get("/tableros", (req, res) => {
+  const { profesor } = req.query;
+  if (!profesor) {
+    return res.status(400).json({ error: "Profesor requerido" });
+  }
+  obtenerTablerosPorProfesor(profesor, (err, rows) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+    } else {
+      res.json(rows);
+    }
+  });
+});
+
+// Guardar un nuevo tablero
+app.post("/tableros", (req, res) => {
+  const { nombre, ip, topico, formato, profesor } = req.body;
+  if (!nombre || !ip || !topico || !profesor) {
+    return res.status(400).json({ error: "Faltan campos requeridos" });
+  }
+  guardarTablero({ nombre, ip, topico, formato, profesor }, (err, id) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+    } else {
+      res.status(201).json({ id });
+    }
+  });
+});
+
 app.post("/enviar-mqtt", (req, res) => {
   const { ip, topic, mensaje } = req.body;
 
@@ -102,18 +138,41 @@ app.post("/enviar-mqtt", (req, res) => {
   const brokerUrl = `mqtt://${ip}`;
   const cliente = mqtt.connect(brokerUrl);
 
+  let responded = false;
+
   cliente.on("connect", () => {
     console.log(`Conectado a broker en ${ip}`);
-    cliente.publish(topic, mensaje, () => {
-      console.log(`Enviado a [${topic}]: ${mensaje}`);
-      cliente.end();
-      res.status(200).json({ message: "Mensaje enviado correctamente" });
+    cliente.publish(topic, mensaje, (err) => {
+      if (!responded) {
+        if (err) {
+          res.status(500).json({ error: "Error al publicar mensaje" });
+        } else {
+          res.status(200).json({ message: "Mensaje enviado correctamente" });
+        }
+        responded = true;
+        cliente.end();
+      }
     });
   });
 
   cliente.on("error", (err) => {
-    console.error("Error MQTT:", err.message);
-    res.status(500).json({ error: "Error al conectar con el broker" });
+    if (!responded) {
+      console.error("Error MQTT:", err.message);
+      res.status(500).json({ error: "Error al conectar con el broker" });
+      responded = true;
+      cliente.end();
+    }
+  });
+});
+
+app.delete("/tableros/:id", (req, res) => {
+  const { id } = req.params;
+  db.run("DELETE FROM tableros WHERE id = ?", [id], function (err) {
+    if (err) {
+      res.status(500).json({ error: "Error al eliminar el tablero" });
+    } else {
+      res.json({ message: "Tablero eliminado" });
+    }
   });
 });
 
@@ -263,8 +322,4 @@ app.post("/login", (req, res) => {
       res.status(401).json({ error: "Correo o contraseña incorrectos" });
     }
   });
-});
-
-app.listen(PORT, () => {
-  console.log(`Servidor backend escuchando en http://localhost:${PORT}`);
 });

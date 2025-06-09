@@ -27,7 +27,8 @@ db.serialize(() => {
   // Tabla estados
   db.run(`
     CREATE TABLE IF NOT EXISTS estados (
-      estado TEXT NOT NULL
+      estado TEXT NOT NULL,
+      profesor TEXT NOT NULL
     )
   `);
 
@@ -40,6 +41,43 @@ db.serialize(() => {
     )
   `);
 
+  db.run(`
+    CREATE TABLE IF NOT EXISTS tableros (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      nombre TEXT NOT NULL,
+      ip TEXT NOT NULL,
+      topico TEXT NOT NULL,
+      formato TEXT,
+      profesor TEXT NOT NULL
+    )
+  `);
+
 });
 
-module.exports = db;
+// Guardar un tablero para un profesor
+function guardarTablero({ nombre, ip, topico, formato, profesor }, callback) {
+  const query = `
+    INSERT INTO tableros (nombre, ip, topico, formato, profesor)
+    VALUES (?, ?, ?, ?, ?)
+  `;
+  db.run(query, [nombre, ip, topico, formato, profesor], function (err) {
+    callback(err, this ? this.lastID : null);
+  });
+}
+
+// Obtener tableros de un profesor
+function obtenerTablerosPorProfesor(profesor, callback) {
+  const query = `
+    SELECT * FROM tableros WHERE profesor = ?
+  `;
+  db.all(query, [profesor], (err, rows) => {
+    callback(err, rows);
+  });
+}
+
+// ...existing code...
+module.exports = {
+  db,
+  guardarTablero,
+  obtenerTablerosPorProfesor,
+};

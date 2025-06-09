@@ -5,6 +5,7 @@ import Register from "../pages/Register/Register";
 import PanelTablero from "../pages/PanelTablero/PanelTablero";
 import HistorialEstados from "../pages/HistorialEstados/HistorialEstados";
 import LandingPage from "../pages/LandingPage/LandingPage";
+import Tableros from "../pages/Tableros/Tableros";
 
 function AppRoutes({ user, handleLogin }) {
   return (
@@ -37,6 +38,11 @@ function AppRoutes({ user, handleLogin }) {
       <Route
         path="/historial"
         element={user ? <HistorialEstados /> : <Navigate to="/login" />}
+      />
+
+      <Route
+        path="/tableros"
+        element={user ? <Tableros /> : <Navigate to="/login" />}
       />
 
       {/* Ruta por defecto */}
