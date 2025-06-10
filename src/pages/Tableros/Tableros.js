@@ -11,6 +11,7 @@ const Tableros = () => {
   });
   const [mensaje, setMensaje] = useState("");
   const [tableroSeleccionado, setTableroSeleccionado] = useState(null);
+  const [jsonCampos, setJsonCampos] = useState([{ clave: "", valor: "" }]);
 
   // Obtener el usuario autenticado
   const user = JSON.parse(localStorage.getItem("user") || "{}");
@@ -63,19 +64,64 @@ const Tableros = () => {
     }
     };
 
+  const handleJsonCampoChange = (idx, field, value) => {
+    const nuevosCampos = [...jsonCampos];
+    nuevosCampos[idx][field] = value;
+    setJsonCampos(nuevosCampos);
+  };
+
+  const agregarCampoJson = () => {
+    setJsonCampos([...jsonCampos, { clave: "", valor: "" }]);
+  };
+
+  const eliminarCampoJson = (idx) => {
+    setJsonCampos(jsonCampos.filter((_, i) => i !== idx));
+  };
+
   // Enviar mensaje al tablero seleccionado
   const handleEnviarMensaje = async () => {
     if (!tableroSeleccionado) return;
-    await fetch("http://localhost:3001/enviar-mqtt", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ip: tableroSeleccionado.ip,
-        topic: tableroSeleccionado.topico,
-        mensaje,
-      }),
-    });
-    setMensaje("");
+
+    if (tableroSeleccionado.formato === "String") {
+      if (!mensaje.trim() || mensaje.length === 0) {
+        alert("El mensaje no puede estar vacío o solo contener espacios.");
+        return;
+      }
+      await fetch("http://localhost:3001/enviar-mqtt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ip: tableroSeleccionado.ip,
+          topic: tableroSeleccionado.topico,
+          mensaje,
+        }),
+      });
+      setMensaje("");
+    } else if (tableroSeleccionado.formato === "JSON") {
+      // Validar que no haya claves vacías y que haya al menos un campo
+      if (
+        jsonCampos.length === 0 ||
+        jsonCampos.some((campo) => !campo.clave.trim())
+      ) {
+        alert("Todos los campos JSON deben tener una clave.");
+        return;
+      }
+      // Construir el objeto JSON
+      const mensajeJson = {};
+      jsonCampos.forEach((campo) => {
+        mensajeJson[campo.clave] = campo.valor;
+      });
+      await fetch("http://localhost:3001/enviar-mqtt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ip: tableroSeleccionado.ip,
+          topic: tableroSeleccionado.topico,
+          mensaje: JSON.stringify(mensajeJson),
+        }),
+      });
+      setJsonCampos([{ clave: "", valor: "" }]);
+    }
   };
 
   return (
@@ -109,13 +155,17 @@ const Tableros = () => {
           onChange={handleChange}
           required
         />
-        <input
-          type="text"
+        <select
+          className={styles["formato-select"]}
           name="formato"
-          placeholder="Formato de mensaje"
           value={nuevoTablero.formato}
           onChange={handleChange}
-        />
+          required
+        >
+          <option value="" disabled hidden>Selecciona el formato</option>
+          <option value="String">String</option>
+          <option value="JSON">JSON</option>
+        </select>
         <button type="submit">Guardar tablero</button>
       </form>
 
@@ -130,11 +180,11 @@ const Tableros = () => {
                     {tablero.nombre} ({tablero.ip})
                 </button>
                 <button
-                    className={styles.eliminar}
-                    onClick={() => handleEliminarTablero(tablero.id)}
-                    style={{ marginLeft: "0.5rem", background: "#e74c3c" }}
+                  className={styles.eliminar}
+                  onClick={() => handleEliminarTablero(tablero.id)}
+                  style={{ marginLeft: "0.5rem" }}
                 >
-                    Eliminar
+                  Eliminar
                 </button>
                 </li>
             ))}
@@ -145,12 +195,52 @@ const Tableros = () => {
       {tableroSeleccionado && (
         <div className={styles.enviar}>
           <h2>Enviar mensaje a: {tableroSeleccionado.nombre}</h2>
-          <input
-            type="text"
-            placeholder="Mensaje"
-            value={mensaje}
-            onChange={(e) => setMensaje(e.target.value)}
-          />
+          {tableroSeleccionado.formato === "String" ? (
+            <>
+              <input
+                type="text"
+                placeholder="Mensaje"
+                value={mensaje}
+                onChange={(e) => setMensaje(e.target.value)}
+              />
+            </>
+          ) : (
+            <>
+              {jsonCampos.map((campo, idx) => (
+                <div key={idx} className={styles["campo-json-row"]}>
+                  <input
+                    type="text"
+                    placeholder="Clave"
+                    value={campo.clave}
+                    onChange={(e) => handleJsonCampoChange(idx, "clave", e.target.value)}
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Valor"
+                    value={campo.valor}
+                    onChange={(e) => handleJsonCampoChange(idx, "valor", e.target.value)}
+                    required
+                  />
+                  {jsonCampos.length > 1 && (
+                    <button
+                      type="button"
+                      className={styles["campo-json-eliminar"]}
+                      onClick={() => eliminarCampoJson(idx)}
+                    >
+                      x
+                    </button>
+                  )}
+                </div>
+              ))}
+              {jsonCampos.length > 0 && (
+                <hr className={styles["json-divider"]} />
+              )}
+              <button type="button" onClick={agregarCampoJson}>
+                Agregar campo
+              </button>
+            </>
+          )}
           <button onClick={handleEnviarMensaje}>Enviar</button>
         </div>
       )}

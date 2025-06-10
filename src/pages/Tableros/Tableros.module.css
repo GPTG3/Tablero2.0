@@ -7,8 +7,28 @@
   background: #f7f7f7;
 }
 
+.formato-select {
+  padding: 0.7rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+  background: #f9fafb;
+  color: #333;
+  transition: border 0.2s;
+  margin-bottom: 0.5rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.formato-select:focus {
+  border-color: #000000;
+  outline: none;
+}
+
 h1 {
   margin-bottom: 2rem;
+  text-align: center;
+  font-size: 2rem;
 }
 
 .form {
@@ -20,8 +40,9 @@ h1 {
   flex-direction: column;
   gap: 1rem;
   width: 100%;
-  max-width: 400px;
+  max-width: 500px;
   margin-bottom: 2rem;
+  box-sizing: border-box;
 }
 
 .form input {
@@ -29,6 +50,8 @@ h1 {
   border: 1px solid #ddd;
   border-radius: 6px;
   font-size: 1rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .form button {
@@ -40,6 +63,8 @@ h1 {
   font-size: 1rem;
   cursor: pointer;
   transition: background 0.2s;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .form button:hover {
@@ -54,10 +79,12 @@ h1 {
   width: 100%;
   max-width: 500px;
   margin-bottom: 2rem;
+  box-sizing: border-box;
 }
 
 .lista h2 {
   margin-bottom: 1rem;
+  font-size: 1.5rem;
 }
 
 .lista ul {
@@ -73,6 +100,8 @@ h1 {
   margin-bottom: 0.7rem;
   padding: 0.5rem 0;
   border-bottom: 1px solid #f0f0f0;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .lista li:last-child {
@@ -89,6 +118,7 @@ h1 {
   cursor: pointer;
   margin-right: 0.5rem;
   transition: background 0.2s;
+  flex-shrink: 0;
 }
 
 .lista button:hover {
@@ -96,17 +126,23 @@ h1 {
 }
 
 .eliminar {
-  background: #e74c3c !important;
+  background: var(--color-primario) !important;
   color: #fff !important;
   font-size: 1.2rem;
   padding: 0.5rem 1rem;
   border-radius: 50%;
   margin-left: 0.5rem;
   transition: background 0.2s;
+  flex-shrink: 0;
+  min-width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .eliminar:hover {
-  background: #c0392b !important;
+  background: var(--color-primario-hover) !important;
 }
 
 .enviar {
@@ -115,10 +151,11 @@ h1 {
   border-radius: 12px;
   box-shadow: 0 2px 16px rgba(0,0,0,0.07);
   width: 100%;
-  max-width: 400px;
+  max-width: 500px;
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  box-sizing: border-box;
 }
 
 .enviar input {
@@ -126,6 +163,8 @@ h1 {
   border: 1px solid #ddd;
   border-radius: 6px;
   font-size: 1rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .enviar button {
@@ -137,15 +176,204 @@ h1 {
   font-size: 1rem;
   cursor: pointer;
   transition: background 0.2s;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .enviar button:hover {
   background: var(--color-primario-hover);
 }
 
-.form,
-.lista,
-.enviar {
-  max-width: 500px;
+.campo-json-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  align-items: center;
   width: 100%;
+  flex-wrap: wrap;
+}
+
+.campo-json-row input {
+  flex: 1 1 0;
+  min-width: 120px;
+  box-sizing: border-box;
+}
+
+.campo-json-eliminar {
+  background: #e74c3c;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 0.8rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin: 0;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  min-width: 80px;
+}
+
+.campo-json-eliminar:hover {
+  background: #c0392b;
+}
+
+.json-divider {
+  border: none;
+  border-top: 1px solid #d3d3d3;
+  margin: 12px 0 16px 0;
+  width: 100%;
+  opacity: 0.6;
+}
+
+
+/* Media Queries para Responsividad */
+
+/* Tablets */
+@media (max-width: 768px) {
+  .tableros-container {
+    padding: 1.5rem 0.75rem;
+  }
+  
+  h1 {
+    font-size: 1.75rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .form,
+  .lista,
+  .enviar {
+    padding: 1.5rem 1.75rem;
+    max-width: 100%;
+  }
+  
+  .lista li {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  
+  .lista li > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    width: 100%;
+  }
+  
+  .campo-json-row {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .campo-json-row input {
+    min-width: 100%;
+    max-width: none;
+  }
+  
+  .campo-json-eliminar {
+    width: 100%;
+    max-width: none;
+    min-width: 100%;
+  }
+}
+
+/* Móviles */
+@media (max-width: 480px) {
+  .tableros-container {
+    padding: 1rem 0.5rem;
+  }
+  
+  h1 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .form,
+  .lista,
+  .enviar {
+    padding: 1rem 1.25rem;
+    border-radius: 8px;
+  }
+  
+  .formato-select,
+  .form input,
+  .enviar input {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.9rem;
+  }
+  
+  .form button,
+  .enviar button {
+    padding: 0.7rem 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .lista h2 {
+    font-size: 1.25rem;
+  }
+  
+  .lista button {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+  }
+  
+  .eliminar {
+    min-width: 35px;
+    height: 35px;
+    font-size: 1rem;
+    padding: 0.4rem;
+  }
+  
+  .campo-json-eliminar {
+    height: 35px;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Móviles muy pequeños */
+@media (max-width: 320px) {
+  .tableros-container {
+    padding: 0.75rem 0.25rem;
+  }
+  
+  h1 {
+    font-size: 1.25rem;
+  }
+  
+  .form,
+  .lista,
+  .enviar {
+    padding: 0.75rem 1rem;
+  }
+  
+  .formato-select,
+  .form input,
+  .enviar input {
+    padding: 0.5rem 0.7rem;
+    font-size: 0.85rem;
+  }
+  
+  .form button,
+  .enviar button {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.85rem;
+  }
+  
+  .lista button {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+    margin-right: 0.25rem;
+  }
+  
+  .eliminar {
+    min-width: 30px;
+    height: 30px;
+    font-size: 0.9rem;
+    margin-left: 0.25rem;
+  }
 }
