@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styles from "./Tableros.module.css";
+import { BACKEND_URL } from "../../config";
 
 const Tableros = () => {
   const [tableros, setTableros] = useState([]);
@@ -20,7 +21,7 @@ const Tableros = () => {
   // Cargar tableros al iniciar
   useEffect(() => {
     if (!profesor) return;
-    fetch(`http://localhost:3001/tableros?profesor=${profesor}`)
+    fetch(`${BACKEND_URL}/tableros?profesor=${profesor}`)
       .then((res) => res.json())
       .then((data) => setTableros(Array.isArray(data) ? data : []))
       .catch(() => setTableros([]));
@@ -34,13 +35,13 @@ const Tableros = () => {
   // Guardar un nuevo tablero
   const handleGuardarTablero = async (e) => {
     e.preventDefault();
-    const res = await fetch("http://localhost:3001/tableros", {
+    const res = await fetch(`${BACKEND_URL}/tableros`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...nuevoTablero, profesor }),
     });
     if (res.ok) {
-      fetch(`http://localhost:3001/tableros?profesor=${profesor}`)
+      fetch(`${BACKEND_URL}/tableros?profesor=${profesor}`)
         .then((res) => res.json())
         .then((data) => setTableros(Array.isArray(data) ? data : []));
       setNuevoTablero({ nombre: "", ip: "", topico: "", formato: "" });
@@ -53,7 +54,7 @@ const Tableros = () => {
   };
 
   const handleEliminarTablero = async (id) => {
-    const res = await fetch(`http://localhost:3001/tableros/${id}`, {
+    const res = await fetch(`${BACKEND_URL}/tableros/${id}`, {
         method: "DELETE",
     });
     if (res.ok) {
@@ -87,7 +88,7 @@ const Tableros = () => {
         alert("El mensaje no puede estar vacío o solo contener espacios.");
         return;
       }
-      await fetch("http://localhost:3001/enviar-mqtt", {
+      await fetch(`${BACKEND_URL}/enviar-mqtt`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -111,7 +112,7 @@ const Tableros = () => {
       jsonCampos.forEach((campo) => {
         mensajeJson[campo.clave] = campo.valor;
       });
-      await fetch("http://localhost:3001/enviar-mqtt", {
+      await fetch(`${BACKEND_URL}/enviar-mqtt`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

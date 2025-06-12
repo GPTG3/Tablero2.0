@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import logo from "../../assets/images/logo2.png";
 import { Link } from "react-router-dom";
 import styles from "./Register.module.css"; // Asegúrate de tener un archivo CSS para estilos
+import { BACKEND_URL } from "../../config";
 
 function Register() {
   const [email, setEmail] = useState("");
@@ -29,7 +30,7 @@ function Register() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("http://localhost:3001/register", {
+      const response = await fetch(`${BACKEND_URL}/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

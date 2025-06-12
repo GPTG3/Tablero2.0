@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 import styles from "./PanelTablero.module.css"; // Asegúrate de tener un archivo CSS para estilos
 import { useWebSocket } from "../../context/WebSocketContext";
+import { BACKEND_URL } from "../../config";
 
 const PanelTablero = () => {
   const [mensaje, setMensaje] = useState("");
@@ -85,7 +86,7 @@ const PanelTablero = () => {
       setCargando(true);
       try {
         const response = await fetch(
-          `http://localhost:3001/estados?profesor=${profesor}`
+          `${BACKEND_URL}/estados?profesor=${profesor}`
         );
         if (response.ok) {
           const data = await response.json();
@@ -123,7 +124,7 @@ const PanelTablero = () => {
     setCargando(true);
     try {
       const nuevoEstado = estado || mensaje;
-      const response = await fetch("http://localhost:3001/estados", {
+      const response = await fetch(`${BACKEND_URL}/estados`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -152,7 +153,7 @@ const PanelTablero = () => {
   const editarEstado = async (estadoOriginal, nuevoEstado) => {
     setCargando(true);
     try {
-      const response = await fetch("http://localhost:3001/estados", {
+      const response = await fetch(`${BACKEND_URL}/estados`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -181,7 +182,7 @@ const PanelTablero = () => {
   const eliminarEstado = async (estado) => {
     setCargando(true);
     try {
-      const response = await fetch("http://localhost:3001/estados", {
+      const response = await fetch(`${BACKEND_URL}/estados`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -210,7 +211,7 @@ const PanelTablero = () => {
     }
     setCargando(true);
     try {
-      const response = await fetch("http://localhost:3001/enviar-mqtt", {
+      const response = await fetch(`${BACKEND_URL}/enviar-mqtt`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -258,7 +259,7 @@ const PanelTablero = () => {
       .replace("/", "-");
 
     try {
-      const response = await fetch("http://localhost:3001/historial", {
+      const response = await fetch(`${BACKEND_URL}/historial`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

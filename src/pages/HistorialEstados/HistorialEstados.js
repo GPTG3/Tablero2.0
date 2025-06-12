@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 import styles from "./HistorialEstados.module.css";
+import { BACKEND_URL } from "../../config";
 
 const HistorialEstados = () => {
   const [historial, setHistorial] = useState([]);
@@ -24,7 +25,7 @@ const HistorialEstados = () => {
         }
 
         setCargando(true);
-        const response = await fetch("http://localhost:3001/historial", {
+        const response = await fetch(`${BACKEND_URL}/historial`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -54,7 +55,7 @@ const HistorialEstados = () => {
 
       try {
         const response = await fetch(
-          `http://localhost:3001/estados?profesor=${profesor}`,
+          `${BACKEND_URL}/estados?profesor=${profesor}`,
           { method: "GET" }
         );
 
@@ -80,7 +81,7 @@ const HistorialEstados = () => {
     if (!estadoSeleccionado) return;
 
     try {
-      const response = await fetch("http://localhost:3001/estados", {
+      const response = await fetch(`${BACKEND_URL}/estados`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
