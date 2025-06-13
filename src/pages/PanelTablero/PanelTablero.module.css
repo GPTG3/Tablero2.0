@@ -351,7 +351,22 @@
   font-size: 0.8rem;
 }
 
-.campo-formulario select,
+.campo-formulario select {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 1rem;
+  background: var(--color-input);
+  color: var(--color-texto);
+  transition: all 0.2s;
+  box-sizing: border-box;
+  cursor: pointer;
+  appearance: none;
+  padding-right: 2rem;
+}
+
 .campo-formulario textarea {
   width: 100%;
   padding: 0.875rem 1rem;
