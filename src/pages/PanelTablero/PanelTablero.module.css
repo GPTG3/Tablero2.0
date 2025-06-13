@@ -363,6 +363,17 @@
   color: var(--color-texto);
   transition: all 0.2s;
   box-sizing: border-box;
+  max-width: 100%; /* Asegura que no supere el ancho del contenedor */
+  max-height: 200px; /* Altura máxima */
+  min-height: 100px; /* Altura mínima */
+  resize: vertical; /* Permite redimensionar verticalmente */
+  overflow-y: auto; /* Agrega scroll vertical cuando sea necesario */
+}
+
+.campo-formulario textarea:focus {
+  outline: none;
+  border-color: var(--color-primario);
+  box-shadow: 0 0 0 3px rgba(204, 0, 0, 0.15);
 }
 
 .campo-formulario select {
