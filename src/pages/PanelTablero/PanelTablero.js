@@ -305,6 +305,19 @@ const PanelTablero = () => {
     setEstadoAEliminar("");
   };
 
+  // Desactivar scroll cuando un modal está abierto
+  useEffect(() => {
+    if (modalAbierto || modalEliminarAbierto) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    // Limpieza al desmontar
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [modalAbierto, modalEliminarAbierto]);
+
   return (
     <div className={styles["contenedor-principal"]}>
       {notificacion && (

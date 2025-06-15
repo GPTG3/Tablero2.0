@@ -96,7 +96,6 @@
   width: 100vw;
   height: 100vh;
   background: rgba(31, 41, 55, 0.55); /* Más oscuro y con blur */
-  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -134,6 +133,7 @@
   margin: 0;
 }
 
+/* Botón de cerrar (X) en el modal */
 .modal-close {
   background: none;
   border: none;
@@ -141,10 +141,26 @@
   font-size: 1.6rem;
   cursor: pointer;
   padding: 0 0.5rem;
-  transition: color 0.2s;
+  transition: color 0.2s, background 0.2s, box-shadow 0.2s;
+  border-radius: 6px;
 }
 .modal-close:hover {
   color: var(--color-acento);
+  background: rgba(255, 153, 0, 0.12);
+  box-shadow: 0 2px 8px rgba(255, 153, 0, 0.08);
+}
+
+/* Botón cancelar en el modal */
+.boton-cancelar {
+  background: #e5e7eb;
+  color: #4b5563;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+.boton-cancelar:hover:not(:disabled) {
+  background: #d1d5db;
+  color: #222;
+  box-shadow: 0 2px 8px rgba(31, 41, 55, 0.08);
+  transform: translateY(-2px);
 }
 
 .modal-footer {
@@ -524,7 +540,7 @@
 }
 
 .boton-guardar:hover:not(:disabled) {
-  background: var(--color-secundario-hover);
+  background: var(--color-primario-hover);
   box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
   transform: translateY(-2px);
 }
