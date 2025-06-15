@@ -105,14 +105,14 @@
 
 .modal {
   background: #fff;
-  border-radius: 18px;
-  box-shadow: 0 12px 40px rgba(204, 0, 0, 0.18);
-  min-width: 320px;
-  max-width: 95vw;
-  padding: 2.5rem 2rem 1.5rem 2rem;
+  border-radius: 22px;
+  box-shadow: 0 16px 48px rgba(204, 0, 0, 0.20);
+  min-width: 340px;
+  max-width: 98vw;
+  padding: 3rem 2.5rem 2rem 2.5rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 2rem;
   animation: popupEntrada 0.3s ease;
   position: relative;
 }
@@ -123,9 +123,9 @@
   justify-content: space-between;
   background: linear-gradient(135deg, var(--color-primario), var(--color-primario-hover));
   color: #fff;
-  border-radius: 14px 14px 0 0;
-  padding: 1rem 1.25rem;
-  margin: -2.5rem -2rem 1.5rem -2rem;
+  border-radius: 18px 18px 0 0;
+  padding: 1.25rem 1.5rem;
+  margin: -3rem -2.5rem 2rem -2.5rem;
 }
 
 .modal-title {
@@ -145,6 +145,15 @@
 }
 .modal-close:hover {
   color: var(--color-acento);
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #f3f4f6;
+  background: transparent;
 }
 
 @keyframes popupEntrada {
