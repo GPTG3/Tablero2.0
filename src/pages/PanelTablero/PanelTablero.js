@@ -19,6 +19,8 @@ const PanelTablero = () => {
   const [modalAbierto, setModalAbierto] = useState(false); // Estado para controlar la apertura del modal
   const [estadoEditando, setEstadoEditando] = useState(""); // Estado para almacenar el estado que se está editando
   const [estadoOriginal, setEstadoOriginal] = useState("");
+  const [modalEliminarAbierto, setModalEliminarAbierto] = useState(false);
+  const [estadoAEliminar, setEstadoAEliminar] = useState("");
 
   const token = localStorage.getItem("token");
   const profesor = token ? jwtDecode(token).mail : null;
@@ -291,6 +293,18 @@ const PanelTablero = () => {
     setEstadoEditando("");
   };
 
+  // Función para abrir el modal de eliminación
+  const abrirModalEliminar = (estado) => {
+    setEstadoAEliminar(estado);
+    setModalEliminarAbierto(true);
+  };
+
+  // Función para cerrar el modal de eliminación
+  const cerrarModalEliminar = () => {
+    setModalEliminarAbierto(false);
+    setEstadoAEliminar("");
+  };
+
   return (
     <div className={styles["contenedor-principal"]}>
       {notificacion && (
@@ -419,9 +433,7 @@ const PanelTablero = () => {
                     className={`${styles["boton"]} ${styles["boton-eliminar"]}`}
                     onClick={() => {
                       if (!estado) return;
-                      if (window.confirm("¿Eliminar este estado?")) {
-                        eliminarEstado(estado);
-                      }
+                      abrirModalEliminar(estado);
                     }}
                     disabled={!estado || cargando}
                     title="Eliminar estado seleccionado"
@@ -634,6 +646,53 @@ const PanelTablero = () => {
                   Cancelar
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal para eliminación de estados */}
+      {modalEliminarAbierto && (
+        <div className={styles["modal-overlay"]}>
+          <div className={styles["modal"]}>
+            <div className={styles["modal-header"]}>
+              <span className={styles["modal-title"]}>Eliminar Estado</span>
+              <button
+                className={styles["modal-close"]}
+                onClick={cerrarModalEliminar}
+                title="Cerrar"
+              >
+                ×
+              </button>
+            </div>
+            <div className={styles["modal-contenido"]}>
+              <p>
+                ¿Estás seguro de que deseas eliminar el estado{" "}
+                <strong>{estadoAEliminar}</strong>? Esta acción no se puede
+                deshacer.
+              </p>
+            </div>
+
+            <div className={styles["modal-footer"]}>
+              <button
+                className={`${styles["boton"]} ${styles["boton-eliminar"]}`}
+                onClick={async () => {
+                  eliminarEstado(estadoAEliminar);
+                  cerrarModalEliminar();
+                }}
+                disabled={cargando}
+              >
+                <span className={styles["boton-icono"]}>🗑️</span>
+                Eliminar Estado
+              </button>
+              <button
+                className={`${styles["boton"]} ${styles["boton-cancelar"]}`}
+                onClick={cerrarModalEliminar}
+                disabled={cargando}
+              >
+                <span className={styles["boton-icono"]}>❌</span>
+                Cancelar
+              </button>
             </div>
           </div>
         </div>
