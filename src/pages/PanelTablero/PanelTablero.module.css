@@ -88,13 +88,15 @@
   text-transform: capitalize;
 }
 
+/* Mejora visual para modales */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(31, 41, 55, 0.7);
+  background: rgba(31, 41, 55, 0.55); /* Más oscuro y con blur */
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -103,28 +105,57 @@
 
 .modal {
   background: #fff;
-  padding: 32px 24px;
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  border-radius: 18px;
+  box-shadow: 0 12px 40px rgba(204, 0, 0, 0.18);
   min-width: 320px;
+  max-width: 95vw;
+  padding: 2.5rem 2rem 1.5rem 2rem;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 1.5rem;
+  animation: popupEntrada 0.3s ease;
+  position: relative;
 }
 
-.modal label {
-  font-weight: 500;
-  margin-bottom: 4px;
+.modal-header {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, var(--color-primario), var(--color-primario-hover));
+  color: #fff;
+  border-radius: 14px 14px 0 0;
+  padding: 1rem 1.25rem;
+  margin: -2.5rem -2rem 1.5rem -2rem;
 }
 
-.modal input {
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid #d1d5db;
-  font-size: 1rem;
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.6rem;
+  cursor: pointer;
+  padding: 0 0.5rem;
+  transition: color 0.2s;
+}
+.modal-close:hover {
+  color: var(--color-acento);
+}
+
+@keyframes popupEntrada {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Stats y KPIs */
@@ -300,7 +331,7 @@
   font-size: 0.875rem;
   padding: 0.35rem 0.75rem;
   border-radius: 50px;
-  background: var(--color-secundario);
+  background: var(--color-primario);
   color: white;
   font-weight: 500;
 }
@@ -448,14 +479,6 @@
   color: var(--color-primario-hover);
 }
 
-.estado-item .boton-editar::before {
-  content: "✏️";
-}
-
-.estado-item .boton-eliminar::before {
-  content: "🗑️";
-}
-
 /* Botones */
 .boton {
   display: flex;
@@ -487,7 +510,7 @@
 }
 
 .boton-guardar {
-  background: var(--color-secundario);
+  background: var(--color-primario);
   color: white;
 }
 
@@ -534,6 +557,28 @@
 
 .boton-enviar:hover:not(:disabled) {
   box-shadow: 0 4px 15px rgba(79, 70, 229, 0.25);
+  transform: translateY(-2px);
+}
+
+.boton-editar {
+  background: var(--color-primario);
+  color: #fff;
+}
+.boton-editar:hover:not(:disabled) {
+  background: var(--color-primario-hover);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(204, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.boton-eliminar {
+  background: var(--color-acento);
+  color: #fff;
+}
+.boton-eliminar:hover:not(:disabled) {
+  background: var(--color-acento-hover);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(255, 153, 0, 0.15);
   transform: translateY(-2px);
 }
 

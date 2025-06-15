@@ -16,6 +16,9 @@ const PanelTablero = () => {
   const [ultimaPing, setUltimaPing] = useState(null);
   // Nuevo estado para el color del texto
   const [colorTexto, setColorTexto] = useState("#CC0000"); // Color rojo por defecto (--color-primario)
+  const [modalAbierto, setModalAbierto] = useState(false); // Estado para controlar la apertura del modal
+  const [estadoEditando, setEstadoEditando] = useState(""); // Estado para almacenar el estado que se está editando
+  const [estadoOriginal, setEstadoOriginal] = useState("");
 
   const token = localStorage.getItem("token");
   const profesor = token ? jwtDecode(token).mail : null;
@@ -275,6 +278,19 @@ const PanelTablero = () => {
     setTimeout(() => setNotificacion(null), 5000);
   };
 
+  // Función para abrir el modal de edición
+  const abrirModalEdicion = (estado) => {
+    setEstadoOriginal(estado); // <-- Guarda el original
+    setEstadoEditando(estado);
+    setModalAbierto(true);
+  };
+
+  // Función para cerrar el modal
+  const cerrarModal = () => {
+    setModalAbierto(false);
+    setEstadoEditando("");
+  };
+
   return (
     <div className={styles["contenedor-principal"]}>
       {notificacion && (
@@ -374,7 +390,7 @@ const PanelTablero = () => {
                   <span className={styles["campo-icono"]}>📋</span>
                   Selecciona un estado guardado:
                 </label>
-                <div className={styles["campo-selector"]}>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                   <select
                     id="select-estado"
                     value={estado}
@@ -388,6 +404,30 @@ const PanelTablero = () => {
                       </option>
                     ))}
                   </select>
+                  <button
+                    className={`${styles["boton"]} ${styles["boton-editar"]}`}
+                    onClick={() => {
+                      if (!estado) return;
+                      abrirModalEdicion(estado);
+                    }}
+                    disabled={!estado || cargando}
+                    title="Editar estado seleccionado"
+                  >
+                    Editar
+                  </button>
+                  <button
+                    className={`${styles["boton"]} ${styles["boton-eliminar"]}`}
+                    onClick={() => {
+                      if (!estado) return;
+                      if (window.confirm("¿Eliminar este estado?")) {
+                        eliminarEstado(estado);
+                      }
+                    }}
+                    disabled={!estado || cargando}
+                    title="Eliminar estado seleccionado"
+                  >
+                    Eliminar
+                  </button>
                 </div>
               </div>
 
@@ -500,6 +540,102 @@ const PanelTablero = () => {
       {cargando && (
         <div className={styles["cargador-overlay"]}>
           <div className={styles["cargador-spinner"]}></div>
+        </div>
+      )}
+
+      {/* Modal para edición de estados */}
+      {modalAbierto && (
+        <div className={styles["modal-overlay"]}>
+          <div className={styles["modal"]}>
+            <div className={styles["modal-header"]}>
+              <span className={styles["modal-title"]}>Editar Estado</span>
+              <button
+                className={styles["modal-close"]}
+                onClick={cerrarModal}
+                title="Cerrar"
+              >
+                ×
+              </button>
+            </div>
+            <div className={styles["modal-contenido"]}>
+              <div className={styles["campo-formulario"]}>
+                <label htmlFor="input-estado-edit">
+                  <span className={styles["campo-icono"]}>✍️</span>
+                  Edita tu estado:
+                </label>
+                <textarea
+                  id="input-estado-edit"
+                  value={estadoEditando}
+                  onChange={(e) => setEstadoEditando(e.target.value)}
+                  placeholder="Escribe tu nuevo estado aquí..."
+                  rows="4"
+                ></textarea>
+                <div className={styles["campo-ayuda"]}>
+                  El estado se actualizará en el tablero LED
+                </div>
+              </div>
+
+              <div className={styles["modal-footer"]}>
+                <button
+                  className={`${styles["boton"]} ${styles["boton-guardar"]}`}
+                  onClick={async () => {
+                    if (!estadoEditando) {
+                      mostrarNotificacion(
+                        "El estado no puede estar vacío",
+                        "advertencia"
+                      );
+                      return;
+                    }
+
+                    setCargando(true);
+                    try {
+                      // Lógica para guardar el estado editado
+                      const response = await fetch(`${BACKEND_URL}/estados`, {
+                        method: "PUT",
+                        headers: {
+                          "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                          estadoOriginal,
+                          nuevoEstado: estadoEditando,
+                          profesor,
+                        }),
+                      });
+
+                      if (response.ok) {
+                        mostrarNotificacion("Estado actualizado", "exito");
+                        setOpcionesEstado((prev) =>
+                          prev.map((estado) =>
+                            estado === estadoOriginal ? estadoEditando : estado
+                          )
+                        );
+                        cerrarModal();
+                      } else {
+                        const errorData = await response.json();
+                        mostrarNotificacion(`Error: ${errorData.error}`, "error");
+                      }
+                    } catch (error) {
+                      mostrarNotificacion("Error de conexión", "error");
+                    } finally {
+                      setCargando(false);
+                    }
+                  }}
+                  disabled={cargando}
+                >
+                  <span className={styles["boton-icono"]}>✅</span>
+                  Guardar Cambios
+                </button>
+                <button
+                  className={`${styles["boton"]} ${styles["boton-cancelar"]}`}
+                  onClick={cerrarModal}
+                  disabled={cargando}
+                >
+                  <span className={styles["boton-icono"]}>❌</span>
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
