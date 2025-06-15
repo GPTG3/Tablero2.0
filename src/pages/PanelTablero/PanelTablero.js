@@ -207,9 +207,10 @@ const PanelTablero = () => {
 
   // Modificamos la función de envío para incluir el color
   const aHistorial = async () => {
-    if (!estado) {
+    const mensajeAEnviar = estado || mensaje;
+    if (!mensajeAEnviar) {
       mostrarNotificacion(
-        "Selecciona un estado antes de enviar",
+        "Escribe un mensaje o selecciona un estado antes de enviar",
         "advertencia"
       );
       return;
@@ -233,7 +234,7 @@ const PanelTablero = () => {
         },
         body: JSON.stringify({
           profesor,
-          estado,
+          estado: mensajeAEnviar,
           fecha: fechaActual,
         }),
       });
@@ -244,11 +245,9 @@ const PanelTablero = () => {
 
         // Enviar al ESP32 (agregamos el color como parte del mensaje)
         if (socket && socket.readyState === WebSocket.OPEN) {
-          // Formato: COLOR:MENSAJE (ej: "#FF0000:Hola mundo")
-          socket.send(`${colorTexto}:${estado}`);
-          console.log(`📤 Estado enviado al ESP32: ${colorTexto}:${estado}`);
+          socket.send(`${colorTexto}:${mensajeAEnviar}`);
+          console.log(`📤 Estado enviado al ESP32: ${colorTexto}:${mensajeAEnviar}`);
 
-          // Animación para mostrar envío
           const previsualizacionElement =
             document.querySelector(".previsualizacion");
           if (previsualizacionElement) {
@@ -551,7 +550,7 @@ const PanelTablero = () => {
                 <button
                   className={`${styles["boton"]} ${styles["boton-enviar"]}`}
                   onClick={aHistorial}
-                  disabled={!estado || cargando}
+                  disabled={!(estado || mensaje) || cargando}
                 >
                   <span className={styles["boton-icono"]}>📡</span>
                   Enviar al Tablero
