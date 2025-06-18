@@ -52,6 +52,18 @@ db.serialize(() => {
     )
   `);
 
+  db.run(`
+    CREATE TABLE IF NOT EXISTS programaciones (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      profesor TEXT NOT NULL,
+      mensaje TEXT NOT NULL,
+      fecha TEXT NOT NULL,
+      hora TEXT NOT NULL,
+      color TEXT,
+      enviado INTEGER DEFAULT 0
+    )
+  `);
+
 });
 
 // Guardar un tablero para un profesor
@@ -75,9 +87,38 @@ function obtenerTablerosPorProfesor(profesor, callback) {
   });
 }
 
-// ...existing code...
+// Guardar una programación
+function guardarProgramacion({ profesor, mensaje, fecha, hora, color }, callback) {
+  const query = `
+    INSERT INTO programaciones (profesor, mensaje, fecha, hora, color)
+    VALUES (?, ?, ?, ?, ?)
+  `;
+  db.run(query, [profesor, mensaje, fecha, hora, color], function (err) {
+    callback(err, this ? this.lastID : null);
+  });
+}
+
+// Obtener programaciones pendientes
+function obtenerProgramacionesPendientes(callback) {
+  const query = `
+    SELECT * FROM programaciones WHERE enviado = 0
+  `;
+  db.all(query, [], callback);
+}
+
+// Marcar programación como enviada
+function marcarProgramacionEnviada(id, callback) {
+  const query = `
+    UPDATE programaciones SET enviado = 1 WHERE id = ?
+  `;
+  db.run(query, [id], callback);
+}
+
 module.exports = {
   db,
   guardarTablero,
   obtenerTablerosPorProfesor,
+  guardarProgramacion,
+  obtenerProgramacionesPendientes,
+  marcarProgramacionEnviada,
 };

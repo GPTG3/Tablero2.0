@@ -88,13 +88,14 @@
   text-transform: capitalize;
 }
 
+/* Mejora visual para modales */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(31, 41, 55, 0.7);
+  background: rgba(31, 41, 55, 0.55); /* Más oscuro y con blur */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -103,28 +104,83 @@
 
 .modal {
   background: #fff;
-  padding: 32px 24px;
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-  min-width: 320px;
+  border-radius: 22px;
+  box-shadow: 0 16px 48px rgba(204, 0, 0, 0.20);
+  min-width: 340px;
+  max-width: 98vw;
+  padding: 3rem 2.5rem 2rem 2.5rem;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 2rem;
+  animation: popupEntrada 0.3s ease;
+  position: relative;
 }
 
-.modal label {
-  font-weight: 500;
-  margin-bottom: 4px;
+.modal-header {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, var(--color-primario), var(--color-primario-hover));
+  color: #fff;
+  border-radius: 18px 18px 0 0;
+  padding: 1.25rem 1.5rem;
+  margin: -3rem -2.5rem 2rem -2.5rem;
 }
 
-.modal input {
-  padding: 8px;
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* Botón de cerrar (X) en el modal */
+.modal-close {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.6rem;
+  cursor: pointer;
+  padding: 0 0.5rem;
+  transition: color 0.2s, background 0.2s, box-shadow 0.2s;
   border-radius: 6px;
-  border: 1px solid #d1d5db;
-  font-size: 1rem;
+}
+.modal-close:hover {
+  color: var(--color-acento);
+  background: rgba(255, 153, 0, 0.12);
+  box-shadow: 0 2px 8px rgba(255, 153, 0, 0.08);
+}
+
+/* Botón cancelar en el modal */
+.boton-cancelar {
+  background: #e5e7eb;
+  color: #4b5563;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+.boton-cancelar:hover:not(:disabled) {
+  background: #d1d5db;
+  color: #222;
+  box-shadow: 0 2px 8px rgba(31, 41, 55, 0.08);
+  transform: translateY(-2px);
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #f3f4f6;
+  background: transparent;
+}
+
+@keyframes popupEntrada {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Stats y KPIs */
@@ -300,7 +356,7 @@
   font-size: 0.875rem;
   padding: 0.35rem 0.75rem;
   border-radius: 50px;
-  background: var(--color-secundario);
+  background: var(--color-primario);
   color: white;
   font-weight: 500;
 }
@@ -351,7 +407,22 @@
   font-size: 0.8rem;
 }
 
-.campo-formulario select,
+.campo-formulario select {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 1rem;
+  background: var(--color-input);
+  color: var(--color-texto);
+  transition: all 0.2s;
+  box-sizing: border-box;
+  cursor: pointer;
+  appearance: none;
+  padding-right: 2rem;
+}
+
 .campo-formulario textarea {
   width: 100%;
   padding: 0.875rem 1rem;
@@ -363,6 +434,17 @@
   color: var(--color-texto);
   transition: all 0.2s;
   box-sizing: border-box;
+  max-width: 100%; /* Asegura que no supere el ancho del contenedor */
+  max-height: 200px; /* Altura máxima */
+  min-height: 100px; /* Altura mínima */
+  resize: vertical; /* Permite redimensionar verticalmente */
+  overflow-y: auto; /* Agrega scroll vertical cuando sea necesario */
+}
+
+.campo-formulario textarea:focus {
+  outline: none;
+  border-color: var(--color-primario);
+  box-shadow: 0 0 0 3px rgba(204, 0, 0, 0.15);
 }
 
 .campo-formulario select {
@@ -422,14 +504,6 @@
   color: var(--color-primario-hover);
 }
 
-.estado-item .boton-editar::before {
-  content: "✏️";
-}
-
-.estado-item .boton-eliminar::before {
-  content: "🗑️";
-}
-
 /* Botones */
 .boton {
   display: flex;
@@ -461,12 +535,12 @@
 }
 
 .boton-guardar {
-  background: var(--color-secundario);
+  background: var(--color-primario);
   color: white;
 }
 
 .boton-guardar:hover:not(:disabled) {
-  background: var(--color-secundario-hover);
+  background: var(--color-primario-hover);
   box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
   transform: translateY(-2px);
 }
@@ -508,6 +582,28 @@
 
 .boton-enviar:hover:not(:disabled) {
   box-shadow: 0 4px 15px rgba(79, 70, 229, 0.25);
+  transform: translateY(-2px);
+}
+
+.boton-editar {
+  background: var(--color-primario);
+  color: #fff;
+}
+.boton-editar:hover:not(:disabled) {
+  background: var(--color-primario-hover);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(204, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.boton-eliminar {
+  background: var(--color-acento);
+  color: #fff;
+}
+.boton-eliminar:hover:not(:disabled) {
+  background: var(--color-acento-hover);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(255, 153, 0, 0.15);
   transform: translateY(-2px);
 }
 
@@ -720,6 +816,56 @@
   border-left: 4px solid var(--color-primario);
   border-radius: 50%;
   animation: spin 1s linear infinite;
+}
+
+
+
+/* Nuevos estilos para el input de hora */
+.input-hora-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.input-hora-wrapper input[type="time"] {
+  width: 100%;
+  padding: 0.875rem 2.5rem 0.875rem 1rem;
+  border: 1px solid var(--color-input-borde);
+  border-radius: 8px;
+  background: var(--color-input);
+  color: var(--color-texto);
+  font-size: 1rem;
+  transition: border 0.2s;
+  box-sizing: border-box;
+  appearance: none;
+}
+
+.input-hora-wrapper input[type="time"]:focus {
+  border-color: var(--color-primario);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(204, 0, 0, 0.10);
+}
+
+.input-hora-wrapper input[type="time"]:focus + .input-hora-icono {
+  color: var(--color-primario-hover);
+}
+
+.input-hora-icono {
+  position: absolute;
+  right: 1rem;
+  pointer-events: none;
+  font-size: 1.3rem;
+  color: var(--color-primario);
+  opacity: 0.8;
+}
+
+/* Opcional: Oculta el icono nativo en Chrome */
+.input-hora-wrapper input[type="time"]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  width: 0;
+  margin: 0;
+  pointer-events: none;
 }
 
 /* Selector de color */

@@ -9,7 +9,7 @@ export const WebSocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    wsRef.current = new window.WebSocket("ws://localhost:3001");
+    wsRef.current = new window.WebSocket("ws://34.176.212.36:3001");
     setSocket(wsRef.current);
 
     wsRef.current.onopen = () => {

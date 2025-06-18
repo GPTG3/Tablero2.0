@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import logo from "../../assets/images/logo2.png"; // Cambiado para usar el logo correcto
 import { Link } from "react-router-dom";
 import styles from "./Login.module.css"; // Asegúrate de tener un archivo CSS para estilos
+import { BACKEND_URL } from "../../config";
 
 function Login({ onLogin }) {
   const [email, setEmail] = useState("");
@@ -21,7 +22,7 @@ function Login({ onLogin }) {
     setIsLoading(true);
 
     try {
-      const response = await fetch("http://localhost:3001/login", {
+      const response = await fetch(`${BACKEND_URL}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

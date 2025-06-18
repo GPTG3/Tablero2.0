@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 import styles from "./PanelTablero.module.css"; // Asegúrate de tener un archivo CSS para estilos
 import { useWebSocket } from "../../context/WebSocketContext";
+import { BACKEND_URL } from "../../config";
 
 const PanelTablero = () => {
   const [mensaje, setMensaje] = useState("");
@@ -13,12 +14,16 @@ const PanelTablero = () => {
   const [notificacion, setNotificacion] = useState(null);
   const [estadoEnviado, setEstadoEnviado] = useState(false);
   const [ultimaPing, setUltimaPing] = useState(null);
-  const [modalAbierto, setModalAbierto] = useState(false);
-  const [ip, setIp] = useState("");
-  const [topic, setTopico] = useState("");
-  const [mensajeModal, setMensajeModal] = useState("");
   // Nuevo estado para el color del texto
   const [colorTexto, setColorTexto] = useState("#CC0000"); // Color rojo por defecto (--color-primario)
+  const [modalAbierto, setModalAbierto] = useState(false); // Estado para controlar la apertura del modal
+  const [estadoEditando, setEstadoEditando] = useState(""); // Estado para almacenar el estado que se está editando
+  const [estadoOriginal, setEstadoOriginal] = useState("");
+  const [modalEliminarAbierto, setModalEliminarAbierto] = useState(false);
+  const [estadoAEliminar, setEstadoAEliminar] = useState("");
+  const [mensajeProgramado, setMensajeProgramado] = useState("");
+  const [horaProgramada, setHoraProgramada] = useState("");
+  const [fechaProgramada, setFechaProgramada] = useState("");
 
   const token = localStorage.getItem("token");
   const profesor = token ? jwtDecode(token).mail : null;
@@ -85,7 +90,7 @@ const PanelTablero = () => {
       setCargando(true);
       try {
         const response = await fetch(
-          `http://localhost:3001/estados?profesor=${profesor}`
+          `${BACKEND_URL}/estados?profesor=${profesor}`
         );
         if (response.ok) {
           const data = await response.json();
@@ -123,7 +128,7 @@ const PanelTablero = () => {
     setCargando(true);
     try {
       const nuevoEstado = estado || mensaje;
-      const response = await fetch("http://localhost:3001/estados", {
+      const response = await fetch(`${BACKEND_URL}/estados`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -152,7 +157,7 @@ const PanelTablero = () => {
   const editarEstado = async (estadoOriginal, nuevoEstado) => {
     setCargando(true);
     try {
-      const response = await fetch("http://localhost:3001/estados", {
+      const response = await fetch(`${BACKEND_URL}/estados`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -181,7 +186,7 @@ const PanelTablero = () => {
   const eliminarEstado = async (estado) => {
     setCargando(true);
     try {
-      const response = await fetch("http://localhost:3001/estados", {
+      const response = await fetch(`${BACKEND_URL}/estados`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -203,45 +208,12 @@ const PanelTablero = () => {
     }
   };
 
-  const enviarAMQTT = async () => {
-    if (!ip || !topic || !mensajeModal) {
-      mostrarNotificacion("Completa todos los campos del modal", "advertencia");
-      return;
-    }
-    setCargando(true);
-    try {
-      const response = await fetch("http://localhost:3001/enviar-mqtt", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ip,
-          topic,
-          mensaje: mensajeModal,
-        }),
-      });
-      if (response.ok) {
-        mostrarNotificacion("Mensaje enviado al otro tablero", "exito");
-        setModalAbierto(false);
-        setIp("");
-        setTopico("");
-        setMensajeModal("");
-      } else {
-        mostrarNotificacion("Error al enviar el mensaje", "error");
-      }
-    } catch (error) {
-      mostrarNotificacion("Error de conexión con el servidor", "error");
-    } finally {
-      setCargando(false);
-    }
-  };
-
   // Modificamos la función de envío para incluir el color
   const aHistorial = async () => {
-    if (!estado) {
+    const mensajeAEnviar = estado || mensaje;
+    if (!mensajeAEnviar) {
       mostrarNotificacion(
-        "Selecciona un estado antes de enviar",
+        "Escribe un mensaje o selecciona un estado antes de enviar",
         "advertencia"
       );
       return;
@@ -258,14 +230,14 @@ const PanelTablero = () => {
       .replace("/", "-");
 
     try {
-      const response = await fetch("http://localhost:3001/historial", {
+      const response = await fetch(`${BACKEND_URL}/historial`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           profesor,
-          estado,
+          estado: mensajeAEnviar,
           fecha: fechaActual,
         }),
       });
@@ -276,11 +248,9 @@ const PanelTablero = () => {
 
         // Enviar al ESP32 (agregamos el color como parte del mensaje)
         if (socket && socket.readyState === WebSocket.OPEN) {
-          // Formato: COLOR:MENSAJE (ej: "#FF0000:Hola mundo")
-          socket.send(`${colorTexto}:${estado}`);
-          console.log(`📤 Estado enviado al ESP32: ${colorTexto}:${estado}`);
+          socket.send(`${colorTexto}:${mensajeAEnviar}`);
+          console.log(`📤 Estado enviado al ESP32: ${colorTexto}:${mensajeAEnviar}`);
 
-          // Animación para mostrar envío
           const previsualizacionElement =
             document.querySelector(".previsualizacion");
           if (previsualizacionElement) {
@@ -312,6 +282,44 @@ const PanelTablero = () => {
     setTimeout(() => setNotificacion(null), 5000);
   };
 
+  // Función para abrir el modal de edición
+  const abrirModalEdicion = (estado) => {
+    setEstadoOriginal(estado); // <-- Guarda el original
+    setEstadoEditando(estado);
+    setModalAbierto(true);
+  };
+
+  // Función para cerrar el modal
+  const cerrarModal = () => {
+    setModalAbierto(false);
+    setEstadoEditando("");
+  };
+
+  // Función para abrir el modal de eliminación
+  const abrirModalEliminar = (estado) => {
+    setEstadoAEliminar(estado);
+    setModalEliminarAbierto(true);
+  };
+
+  // Función para cerrar el modal de eliminación
+  const cerrarModalEliminar = () => {
+    setModalEliminarAbierto(false);
+    setEstadoAEliminar("");
+  };
+
+  // Desactivar scroll cuando un modal está abierto
+  useEffect(() => {
+    if (modalAbierto || modalEliminarAbierto) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    // Limpieza al desmontar
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [modalAbierto, modalEliminarAbierto]);
+
   return (
     <div className={styles["contenedor-principal"]}>
       {notificacion && (
@@ -335,55 +343,6 @@ const PanelTablero = () => {
             ×
           </button>
         </div>
-      )}
-
-      {modalAbierto && (
-      <div className={styles["modal-overlay"]}>
-        <div className={styles["modal"]}>
-          <h2>Enviar mensaje MQTT</h2>
-          <label>
-            IP:
-            <input
-              type="text"
-              value={ip}
-              onChange={(e) => setIp(e.target.value)}
-              placeholder="Ej: 192.168.1.100"
-            />
-          </label>
-          <label>
-            Tópico:
-            <input
-              type="text"
-              value={topic}
-              onChange={(e) => setTopico(e.target.value)}
-              placeholder="Ej: tablero/estado"
-            />
-          </label>
-          <label>
-            Mensaje:
-            <input
-              type="text"
-              value={mensajeModal}
-              onChange={(e) => setMensajeModal(e.target.value)}
-              placeholder="Mensaje a enviar"
-            />
-          </label>
-          <div style={{ marginTop: 16, display: "flex", gap: 8 }}>
-            <button
-              className={`${styles["boton"]} ${styles["boton-enviar"]}`}
-              onClick={enviarAMQTT}
-            >
-              Enviar
-            </button>
-            <button
-              className={`${styles["boton"]} ${styles["boton-enviar"]}`}
-              onClick={() => setModalAbierto(false)}
-            >
-              Cancelar
-            </button>
-          </div>
-        </div>
-      </div>
       )}
 
       <div className={styles["dashboard-header"]}>
@@ -460,7 +419,7 @@ const PanelTablero = () => {
                   <span className={styles["campo-icono"]}>📋</span>
                   Selecciona un estado guardado:
                 </label>
-                <div className={styles["campo-selector"]}>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                   <select
                     id="select-estado"
                     value={estado}
@@ -474,6 +433,28 @@ const PanelTablero = () => {
                       </option>
                     ))}
                   </select>
+                  <button
+                    className={`${styles["boton"]} ${styles["boton-editar"]}`}
+                    onClick={() => {
+                      if (!estado) return;
+                      abrirModalEdicion(estado);
+                    }}
+                    disabled={!estado || cargando}
+                    title="Editar estado seleccionado"
+                  >
+                    Editar
+                  </button>
+                  <button
+                    className={`${styles["boton"]} ${styles["boton-eliminar"]}`}
+                    onClick={() => {
+                      if (!estado) return;
+                      abrirModalEliminar(estado);
+                    }}
+                    disabled={!estado || cargando}
+                    title="Eliminar estado seleccionado"
+                  >
+                    Eliminar
+                  </button>
                 </div>
               </div>
 
@@ -572,16 +553,143 @@ const PanelTablero = () => {
                 <button
                   className={`${styles["boton"]} ${styles["boton-enviar"]}`}
                   onClick={aHistorial}
-                  disabled={!estado || cargando}
+                  disabled={!(estado || mensaje) || cargando}
                 >
                   <span className={styles["boton-icono"]}>📡</span>
                   Enviar al Tablero
                 </button>
+              </div>
+            </div>
+          </div>
+
+          <div className={styles["panel-columna"]}>
+            <div className={styles["tarjeta"]}>
+              <div className={styles["tarjeta-header"]}>
+                <h3>
+                  <span className={styles["campo-icono"]}>⏰</span>
+                  Programar mensaje
+                </h3>
+                <span className={styles["tarjeta-badge"]}>Automático</span>
+              </div>
+              <div className={styles["campo-formulario"]}>
+                <label htmlFor="mensaje-programado">
+                  <span className={styles["campo-icono"]}>💬</span>
+                  Mensaje:
+                </label>
+                <textarea
+                  id="mensaje-programado"
+                  value={mensajeProgramado}
+                  onChange={(e) => {
+                    if (e.target.value.length <= 100) setMensajeProgramado(e.target.value);
+                  }}
+                  placeholder="Escribe el mensaje que se enviará automáticamente..."
+                  className={styles["input"]}
+                  rows={3}
+                  maxLength={100}
+                  required
+                />
+                <div className={styles["campo-ayuda"]}>
+                  {mensajeProgramado.length}/100 caracteres
+                </div>
+              </div>
+              <div className={styles["campo-formulario"]}>
+                <label htmlFor="fecha-programada">
+                  <span className={styles["campo-icono"]}>📅</span>
+                  Día de envío:
+                </label>
+                <input
+                  id="fecha-programada"
+                  type="date"
+                  value={fechaProgramada}
+                  onChange={(e) => setFechaProgramada(e.target.value)}
+                  className={styles["input"]}
+                  required
+                />
+                <div className={styles["campo-ayuda"]}>
+                  Selecciona el día en que se enviará el mensaje.
+                </div>
+              </div>
+              <div className={styles["campo-formulario"]}>
+                <label htmlFor="hora-programada">
+                  <span className={styles["campo-icono"]}>🕒</span>
+                  Hora de envío:
+                </label>
+                <div className={styles["input-hora-wrapper"]}>
+                  <input
+                    id="hora-programada"
+                    type="time"
+                    value={horaProgramada}
+                    onChange={(e) => setHoraProgramada(e.target.value)}
+                    className={styles["input"]}
+                    required
+                  />
+                  <span className={styles["input-hora-icono"]}>⏰</span>
+                </div>
+                <div className={styles["campo-ayuda"]}>
+                  Selecciona la hora exacta en la que se enviará el mensaje.
+                </div>
+              </div>
+              <div className={styles["campo-formulario"]}>
+                <label>
+                  <span className={styles["campo-icono"]}>🎨</span>
+                  Color del texto:
+                </label>
+                <div className={styles["color-picker-container"]}>
+                  <input
+                    type="color"
+                    value={colorTexto}
+                    onChange={manejarCambioColor}
+                    className={styles["color-picker"]}
+                  />
+                  <input
+                    type="text"
+                    value={colorTexto}
+                    onChange={manejarCambioColor}
+                    className={styles["color-value-input"]}
+                    pattern="^#[0-9A-Fa-f]{6}$"
+                    title="Código de color hexadecimal (ej: #FF0000)"
+                  />
+                </div>
+              </div>
+              <div className={styles["tarjeta-footer"]}>
                 <button
-                  className={`${styles["boton"]} ${styles["boton-enviar"]}`}
-                  onClick={() => setModalAbierto(true)}
+                  className={`${styles["boton"]} ${styles["boton-guardar"]}`}
+                  onClick={async () => {
+                    if (!mensajeProgramado || !horaProgramada) {
+                      mostrarNotificacion("Completa ambos campos", "advertencia");
+                      return;
+                    }
+                    setCargando(true);
+                    try {
+                      const res = await fetch(`${BACKEND_URL}/programar-mensaje`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          profesor,
+                          mensaje: mensajeProgramado,
+                          fecha: fechaProgramada,
+                          hora: horaProgramada,
+                          color: colorTexto,
+                        }),
+                      });
+                      if (res.ok) {
+                        mostrarNotificacion("Mensaje programado correctamente", "exito");
+                        setMensajeProgramado("");
+                        setHoraProgramada("");
+                      } else {
+                        const error = await res.json();
+                        mostrarNotificacion(error.error, "error");
+                      }
+                    } catch {
+                      mostrarNotificacion("Error de conexión", "error");
+                    } finally {
+                      setCargando(false);
+                    }
+                  }}
+                  disabled={cargando}
                 >
-                  Enviar a otro tablero
+                  <span className={styles["boton-icono"]}>⏳</span>
+                  Programar mensaje
                 </button>
               </div>
             </div>
@@ -592,6 +700,149 @@ const PanelTablero = () => {
       {cargando && (
         <div className={styles["cargador-overlay"]}>
           <div className={styles["cargador-spinner"]}></div>
+        </div>
+      )}
+
+      {/* Modal para edición de estados */}
+      {modalAbierto && (
+        <div className={styles["modal-overlay"]}>
+          <div className={styles["modal"]}>
+            <div className={styles["modal-header"]}>
+              <span className={styles["modal-title"]}>Editar Estado</span>
+              <button
+                className={styles["modal-close"]}
+                onClick={cerrarModal}
+                title="Cerrar"
+              >
+                ×
+              </button>
+            </div>
+            <div className={styles["modal-contenido"]}>
+              <div className={styles["campo-formulario"]}>
+                <label htmlFor="input-estado-edit">
+                  <span className={styles["campo-icono"]}>✍️</span>
+                  Edita tu estado:
+                </label>
+                <textarea
+                  id="input-estado-edit"
+                  value={estadoEditando}
+                  onChange={(e) => setEstadoEditando(e.target.value)}
+                  placeholder="Escribe tu nuevo estado aquí..."
+                  rows="4"
+                ></textarea>
+                <div className={styles["campo-ayuda"]}>
+                  El estado se actualizará en el tablero LED
+                </div>
+              </div>
+
+              <div className={styles["modal-footer"]}>
+                <button
+                  className={`${styles["boton"]} ${styles["boton-guardar"]}`}
+                  onClick={async () => {
+                    if (!estadoEditando) {
+                      mostrarNotificacion(
+                        "El estado no puede estar vacío",
+                        "advertencia"
+                      );
+                      return;
+                    }
+
+                    setCargando(true);
+                    try {
+                      // Lógica para guardar el estado editado
+                      const response = await fetch(`${BACKEND_URL}/estados`, {
+                        method: "PUT",
+                        headers: {
+                          "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                          estadoOriginal,
+                          nuevoEstado: estadoEditando,
+                          profesor,
+                        }),
+                      });
+
+                      if (response.ok) {
+                        mostrarNotificacion("Estado actualizado", "exito");
+                        setOpcionesEstado((prev) =>
+                          prev.map((estado) =>
+                            estado === estadoOriginal ? estadoEditando : estado
+                          )
+                        );
+                        cerrarModal();
+                      } else {
+                        const errorData = await response.json();
+                        mostrarNotificacion(`Error: ${errorData.error}`, "error");
+                      }
+                    } catch (error) {
+                      mostrarNotificacion("Error de conexión", "error");
+                    } finally {
+                      setCargando(false);
+                    }
+                  }}
+                  disabled={cargando}
+                >
+                  <span className={styles["boton-icono"]}>✅</span>
+                  Guardar Cambios
+                </button>
+                <button
+                  className={`${styles["boton"]} ${styles["boton-cancelar"]}`}
+                  onClick={cerrarModal}
+                  disabled={cargando}
+                >
+                  <span className={styles["boton-icono"]}>❌</span>
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal para eliminación de estados */}
+      {modalEliminarAbierto && (
+        <div className={styles["modal-overlay"]}>
+          <div className={styles["modal"]}>
+            <div className={styles["modal-header"]}>
+              <span className={styles["modal-title"]}>Eliminar Estado</span>
+              <button
+                className={styles["modal-close"]}
+                onClick={cerrarModalEliminar}
+                title="Cerrar"
+              >
+                ×
+              </button>
+            </div>
+            <div className={styles["modal-contenido"]}>
+              <p>
+                ¿Estás seguro de que deseas eliminar el estado{" "}
+                <strong>{estadoAEliminar}</strong>? Esta acción no se puede
+                deshacer.
+              </p>
+            </div>
+
+            <div className={styles["modal-footer"]}>
+              <button
+                className={`${styles["boton"]} ${styles["boton-eliminar"]}`}
+                onClick={async () => {
+                  eliminarEstado(estadoAEliminar);
+                  cerrarModalEliminar();
+                }}
+                disabled={cargando}
+              >
+                <span className={styles["boton-icono"]}>🗑️</span>
+                Eliminar Estado
+              </button>
+              <button
+                className={`${styles["boton"]} ${styles["boton-cancelar"]}`}
+                onClick={cerrarModalEliminar}
+                disabled={cargando}
+              >
+                <span className={styles["boton-icono"]}>❌</span>
+                Cancelar
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
