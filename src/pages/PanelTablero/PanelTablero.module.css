@@ -818,6 +818,56 @@
   animation: spin 1s linear infinite;
 }
 
+
+
+/* Nuevos estilos para el input de hora */
+.input-hora-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.input-hora-wrapper input[type="time"] {
+  width: 100%;
+  padding: 0.875rem 2.5rem 0.875rem 1rem;
+  border: 1px solid var(--color-input-borde);
+  border-radius: 8px;
+  background: var(--color-input);
+  color: var(--color-texto);
+  font-size: 1rem;
+  transition: border 0.2s;
+  box-sizing: border-box;
+  appearance: none;
+}
+
+.input-hora-wrapper input[type="time"]:focus {
+  border-color: var(--color-primario);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(204, 0, 0, 0.10);
+}
+
+.input-hora-wrapper input[type="time"]:focus + .input-hora-icono {
+  color: var(--color-primario-hover);
+}
+
+.input-hora-icono {
+  position: absolute;
+  right: 1rem;
+  pointer-events: none;
+  font-size: 1.3rem;
+  color: var(--color-primario);
+  opacity: 0.8;
+}
+
+/* Opcional: Oculta el icono nativo en Chrome */
+.input-hora-wrapper input[type="time"]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  width: 0;
+  margin: 0;
+  pointer-events: none;
+}
+
 /* Selector de color */
 .color-selector {
   display: flex;

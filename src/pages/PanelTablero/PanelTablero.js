@@ -21,6 +21,9 @@ const PanelTablero = () => {
   const [estadoOriginal, setEstadoOriginal] = useState("");
   const [modalEliminarAbierto, setModalEliminarAbierto] = useState(false);
   const [estadoAEliminar, setEstadoAEliminar] = useState("");
+  const [mensajeProgramado, setMensajeProgramado] = useState("");
+  const [horaProgramada, setHoraProgramada] = useState("");
+  const [fechaProgramada, setFechaProgramada] = useState("");
 
   const token = localStorage.getItem("token");
   const profesor = token ? jwtDecode(token).mail : null;
@@ -554,6 +557,139 @@ const PanelTablero = () => {
                 >
                   <span className={styles["boton-icono"]}>📡</span>
                   Enviar al Tablero
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className={styles["panel-columna"]}>
+            <div className={styles["tarjeta"]}>
+              <div className={styles["tarjeta-header"]}>
+                <h3>
+                  <span className={styles["campo-icono"]}>⏰</span>
+                  Programar mensaje
+                </h3>
+                <span className={styles["tarjeta-badge"]}>Automático</span>
+              </div>
+              <div className={styles["campo-formulario"]}>
+                <label htmlFor="mensaje-programado">
+                  <span className={styles["campo-icono"]}>💬</span>
+                  Mensaje:
+                </label>
+                <textarea
+                  id="mensaje-programado"
+                  value={mensajeProgramado}
+                  onChange={(e) => {
+                    if (e.target.value.length <= 100) setMensajeProgramado(e.target.value);
+                  }}
+                  placeholder="Escribe el mensaje que se enviará automáticamente..."
+                  className={styles["input"]}
+                  rows={3}
+                  maxLength={100}
+                  required
+                />
+                <div className={styles["campo-ayuda"]}>
+                  {mensajeProgramado.length}/100 caracteres
+                </div>
+              </div>
+              <div className={styles["campo-formulario"]}>
+                <label htmlFor="fecha-programada">
+                  <span className={styles["campo-icono"]}>📅</span>
+                  Día de envío:
+                </label>
+                <input
+                  id="fecha-programada"
+                  type="date"
+                  value={fechaProgramada}
+                  onChange={(e) => setFechaProgramada(e.target.value)}
+                  className={styles["input"]}
+                  required
+                />
+                <div className={styles["campo-ayuda"]}>
+                  Selecciona el día en que se enviará el mensaje.
+                </div>
+              </div>
+              <div className={styles["campo-formulario"]}>
+                <label htmlFor="hora-programada">
+                  <span className={styles["campo-icono"]}>🕒</span>
+                  Hora de envío:
+                </label>
+                <div className={styles["input-hora-wrapper"]}>
+                  <input
+                    id="hora-programada"
+                    type="time"
+                    value={horaProgramada}
+                    onChange={(e) => setHoraProgramada(e.target.value)}
+                    className={styles["input"]}
+                    required
+                  />
+                  <span className={styles["input-hora-icono"]}>⏰</span>
+                </div>
+                <div className={styles["campo-ayuda"]}>
+                  Selecciona la hora exacta en la que se enviará el mensaje.
+                </div>
+              </div>
+              <div className={styles["campo-formulario"]}>
+                <label>
+                  <span className={styles["campo-icono"]}>🎨</span>
+                  Color del texto:
+                </label>
+                <div className={styles["color-picker-container"]}>
+                  <input
+                    type="color"
+                    value={colorTexto}
+                    onChange={manejarCambioColor}
+                    className={styles["color-picker"]}
+                  />
+                  <input
+                    type="text"
+                    value={colorTexto}
+                    onChange={manejarCambioColor}
+                    className={styles["color-value-input"]}
+                    pattern="^#[0-9A-Fa-f]{6}$"
+                    title="Código de color hexadecimal (ej: #FF0000)"
+                  />
+                </div>
+              </div>
+              <div className={styles["tarjeta-footer"]}>
+                <button
+                  className={`${styles["boton"]} ${styles["boton-guardar"]}`}
+                  onClick={async () => {
+                    if (!mensajeProgramado || !horaProgramada) {
+                      mostrarNotificacion("Completa ambos campos", "advertencia");
+                      return;
+                    }
+                    setCargando(true);
+                    try {
+                      const res = await fetch(`${BACKEND_URL}/programar-mensaje`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          profesor,
+                          mensaje: mensajeProgramado,
+                          fecha: fechaProgramada,
+                          hora: horaProgramada,
+                          color: colorTexto,
+                        }),
+                      });
+                      if (res.ok) {
+                        mostrarNotificacion("Mensaje programado correctamente", "exito");
+                        setMensajeProgramado("");
+                        setHoraProgramada("");
+                      } else {
+                        const error = await res.json();
+                        mostrarNotificacion(error.error, "error");
+                      }
+                    } catch {
+                      mostrarNotificacion("Error de conexión", "error");
+                    } finally {
+                      setCargando(false);
+                    }
+                  }}
+                  disabled={cargando}
+                >
+                  <span className={styles["boton-icono"]}>⏳</span>
+                  Programar mensaje
                 </button>
               </div>
             </div>

@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors"); // Importar cors
 const app = express();
-const { db, guardarTablero, obtenerTablerosPorProfesor } = require("./db");
+const { db, guardarTablero, obtenerTablerosPorProfesor, guardarProgramacion, obtenerProgramacionesPendientes, marcarProgramacionEnviada } = require("./db");
 const PORT = 3001;
 const jwt = require("jsonwebtoken");
 const SECRET_KEY = "tu_clave_secreta";
@@ -323,3 +323,88 @@ app.post("/login", (req, res) => {
     }
   });
 });
+
+const programaciones = []; // En memoria, para pruebas. Usa DB en producción.
+
+app.post("/programar-mensaje", (req, res) => {
+  const { profesor, mensaje, fecha, hora, color } = req.body;
+  if (!profesor || !mensaje || !fecha || !hora) {
+    return res.status(400).json({ error: "Faltan datos requeridos" });
+  }
+  guardarProgramacion({ profesor, mensaje, fecha, hora, color }, (err, id) => {
+    if (err) {
+      return res.status(500).json({ error: "Error al guardar la programación" });
+    }
+    res.status(201).json({ message: "Mensaje programado", id });
+  });
+});
+
+// Ruta para obtener los mensajes programados
+app.get("/programar-mensaje", (req, res) => {
+  const { profesor } = req.query;
+
+  if (!profesor) {
+    return res.status(400).json({ error: "El profesor es requerido" });
+  }
+
+  const mensajesProfesor = programaciones.filter(
+    (p) => p.profesor === profesor
+  );
+  res.json(mensajesProfesor);
+});
+
+// Ruta para eliminar una programación
+app.delete("/programar-mensaje", (req, res) => {
+  const { profesor, mensaje, hora } = req.body;
+
+  console.log("Las programaciones actuales son:", programaciones);
+
+  if (!profesor || !mensaje || !hora) {
+    return res.status(400).json({ error: "Faltan datos requeridos" });
+  }
+
+  const index = programaciones.findIndex(
+    (p) => p.profesor === profesor && p.mensaje === mensaje && p.hora === hora
+  );
+
+  if (index === -1) {
+    return res.status(404).json({ error: "Programación no encontrada" });
+  }
+
+  programaciones.splice(index, 1);
+  res.json({ message: "Programación eliminada" });
+});
+
+// Intervalo para enviar mensajes programados
+setInterval(() => {
+  const ahora = new Date();
+  const fechaActual = ahora.toLocaleDateString("en-CA", { timeZone: "America/Santiago" }); // yyyy-mm-dd
+  const horaActual = ahora.toLocaleTimeString("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: "America/Santiago"
+  });
+
+  obtenerProgramacionesPendientes((err, programaciones) => {
+    if (err) {
+      console.error("Error al obtener programaciones:", err);
+      return;
+    }
+    programaciones.forEach((prog) => {
+      const progHora = prog.hora.padStart(5, "0");
+      // Solo envía si la fecha y la hora coinciden
+      if (!prog.enviado && prog.fecha === fechaActual && progHora <= horaActual) {
+        mqttClient.publish("matriz/texto", `${prog.color || "#CC0000"}:${prog.mensaje}`);
+        marcarProgramacionEnviada(prog.id, (err) => {
+          if (err) {
+            console.error("Error al marcar como enviada:", err);
+          }
+        });
+        console.log(`Mensaje programado enviado: ${prog.mensaje} a las ${prog.fecha} ${prog.hora}`);
+      }
+    });
+  });
+}, 10000); // Revisa cada 10 segundos
+
+module.exports = app;
