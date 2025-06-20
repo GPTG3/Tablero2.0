@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router } from "react-router-dom";
 import "./App.css";
 import Navbar from "./components/Navbar/Navbar";
 import Footer from "./components/Footer/Footer";
 import AppRoutes from "./routes/AppRoutes";
+import { WebSocketProvider } from "./context/WebSocketContext";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -28,11 +29,13 @@ function App() {
 
   return (
     <Router>
-      <Navbar user={user} handleLogout={handleLogout} />
-      <div className="App">
-        <AppRoutes user={user} handleLogin={handleLogin} />
-      </div>
-      <Footer />
+      <WebSocketProvider>
+        <Navbar user={user} handleLogout={handleLogout} />
+        <div className="App">
+          <AppRoutes user={user} handleLogin={handleLogin} />
+        </div>
+        <Footer />
+      </WebSocketProvider>
     </Router>
   );
 }

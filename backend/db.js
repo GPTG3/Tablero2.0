@@ -27,7 +27,8 @@ db.serialize(() => {
   // Tabla estados
   db.run(`
     CREATE TABLE IF NOT EXISTS estados (
-      estado TEXT NOT NULL
+      estado TEXT NOT NULL,
+      profesor TEXT NOT NULL
     )
   `);
 
@@ -40,6 +41,84 @@ db.serialize(() => {
     )
   `);
 
+  db.run(`
+    CREATE TABLE IF NOT EXISTS tableros (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      nombre TEXT NOT NULL,
+      ip TEXT NOT NULL,
+      topico TEXT NOT NULL,
+      formato TEXT,
+      profesor TEXT NOT NULL
+    )
+  `);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS programaciones (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      profesor TEXT NOT NULL,
+      mensaje TEXT NOT NULL,
+      fecha TEXT NOT NULL,
+      hora TEXT NOT NULL,
+      color TEXT,
+      enviado INTEGER DEFAULT 0
+    )
+  `);
+
 });
 
-module.exports = db;
+// Guardar un tablero para un profesor
+function guardarTablero({ nombre, ip, topico, formato, profesor }, callback) {
+  const query = `
+    INSERT INTO tableros (nombre, ip, topico, formato, profesor)
+    VALUES (?, ?, ?, ?, ?)
+  `;
+  db.run(query, [nombre, ip, topico, formato, profesor], function (err) {
+    callback(err, this ? this.lastID : null);
+  });
+}
+
+// Obtener tableros de un profesor
+function obtenerTablerosPorProfesor(profesor, callback) {
+  const query = `
+    SELECT * FROM tableros WHERE profesor = ?
+  `;
+  db.all(query, [profesor], (err, rows) => {
+    callback(err, rows);
+  });
+}
+
+// Guardar una programación
+function guardarProgramacion({ profesor, mensaje, fecha, hora, color }, callback) {
+  const query = `
+    INSERT INTO programaciones (profesor, mensaje, fecha, hora, color)
+    VALUES (?, ?, ?, ?, ?)
+  `;
+  db.run(query, [profesor, mensaje, fecha, hora, color], function (err) {
+    callback(err, this ? this.lastID : null);
+  });
+}
+
+// Obtener programaciones pendientes
+function obtenerProgramacionesPendientes(callback) {
+  const query = `
+    SELECT * FROM programaciones WHERE enviado = 0
+  `;
+  db.all(query, [], callback);
+}
+
+// Marcar programación como enviada
+function marcarProgramacionEnviada(id, callback) {
+  const query = `
+    UPDATE programaciones SET enviado = 1 WHERE id = ?
+  `;
+  db.run(query, [id], callback);
+}
+
+module.exports = {
+  db,
+  guardarTablero,
+  obtenerTablerosPorProfesor,
+  guardarProgramacion,
+  obtenerProgramacionesPendientes,
+  marcarProgramacionEnviada,
+};

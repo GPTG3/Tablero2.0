@@ -2,7 +2,9 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: calc(100vh - 160px); /* Ajustado para dejar espacio al navbar y footer */
+  min-height: calc(
+    100vh - 160px
+  ); /* Ajustado para dejar espacio al navbar y footer */
   background-color: var(--color-fondo);
   padding: 20px;
 }
@@ -23,7 +25,6 @@
   border-radius: 16px;
   overflow: hidden; /* Importante para que el logo no se salga de los bordes redondeados */
   padding-top: 0; /* Eliminamos el padding superior */
-  margin-top: 2rem; /* Para que el logo sobresalga */
 }
 
 /* Eliminamos cualquier línea lateral */
@@ -39,9 +40,11 @@
   left: 0;
   right: 0;
   height: 150px; /* Alto limitado para que solo afecte la parte superior */
-  background: linear-gradient(180deg, 
-              rgba(204, 0, 0, 0.02) 0%,
-              rgba(204, 0, 0, 0) 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(204, 0, 0, 0.02) 0%,
+    rgba(204, 0, 0, 0) 100%
+  );
   pointer-events: none; /* Para que no interfiera con los clicks */
   z-index: 0; /* Detrás del contenido */
 }
@@ -65,10 +68,16 @@
   align-items: center;
   position: relative;
   z-index: 1;
-  background: linear-gradient(135deg, var(--color-primario), var(--color-primario-hover-dark)); /* Gradient de rojo a uno más oscuro */
+  background: linear-gradient(
+    135deg,
+    var(--color-primario),
+    var(--color-primario-hover-dark)
+  ); /* Gradient de rojo a uno más oscuro */
   border-radius: 12px 12px 0 0; /* Bordes redondeados solo arriba */
   padding: 2.8rem 0 1.5rem 0; /* Aumentado un poco el padding arriba y abajo */
-  width: calc(100% + 5.6rem); /* Que ocupe todo el ancho y más para extenderse fuera de los bordes */
+  width: calc(
+    100% + 5.6rem
+  ); /* Que ocupe todo el ancho y más para extenderse fuera de los bordes */
   box-shadow: 0 6px 12px rgba(204, 0, 0, 0.2); /* Sombra para dar profundidad */
   margin: -2.8rem -2.8rem 2rem -2.8rem; /* Margen negativo para extender fuera del card */
 }
@@ -283,10 +292,14 @@
 
 /* Asegurar que el botón del formulario de registro sea rojo */
 form .register-button {
-  background-color: #CC0000 !important; /* Usando el valor directo en lugar de la variable */
+  background-color: #cc0000 !important; /* Usando el valor directo en lugar de la variable */
   color: white !important;
 }
 form .register-button:hover:not(:disabled) {
-  transform: translateY(-1px); /* Usando el valor directo en lugar de la variable */
-  background-color: var(--color-primario-hover) !important; /* Usando el valor directo en lugar de la variable */
+  transform: translateY(
+    -1px
+  ); /* Usando el valor directo en lugar de la variable */
+  background-color: var(
+    --color-primario-hover
+  ) !important; /* Usando el valor directo en lugar de la variable */
 }
