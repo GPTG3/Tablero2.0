@@ -82,7 +82,6 @@
   text-decoration: none;
   color: var(--color-texto);
   font-weight: 500;
-  font-size: 1rem; /* Aumentado de 0.95rem a 1rem */
   padding: 0.6rem 0.35rem; /* Aumentado el padding */
   position: relative;
   transition: color 0.2s ease;
@@ -95,7 +94,6 @@
   left: 0;
   width: 0;
   height: 2px;
-  background-color: var(--color-primario);
   transition: width 0.2s ease;
 }
 
@@ -225,6 +223,29 @@
 .user-dropdown .dropdown-menu button:hover {
   background: var(--color-acento-hover);
   transform: translateY(-2px) scale(1.03);
+}
+
+.dropdown-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  color: var(--color-texto);
+  font-size: 0.875rem; /* Texto más pequeño */
+  font-weight: 400;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+}
+
+.dropdown-link:hover {
+  background-color: var(--color-hover);
+  color: var(--color-primario);
+}
+
+.dropdown-menu button {
+  font-size: 0.875rem;
+  font-weight: 400;
 }
 
 /* Responsive Navbar */

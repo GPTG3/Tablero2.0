@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import logo from "../../assets/images/logo.png";
 import styles from "./Navbar.module.css";
 
@@ -11,6 +12,7 @@ function Navbar({ user, handleLogout }) {
   const location = useLocation();
   const isLoginPage = location.pathname === "/login";
   const isLandingPage = location.pathname === "/";
+  const navigate = useNavigate();
 
   // Añadir un temporizador para debounce
   const scrollTimerRef = useRef(null);
@@ -19,7 +21,9 @@ function Navbar({ user, handleLogout }) {
 
   const handleLogoutAndCloseMenu = () => {
     setMenuOpen(false);
+    setDropdownOpen(false);
     handleLogout();
+    navigate("/");
   };
 
   useEffect(() => {
@@ -128,7 +132,9 @@ function Navbar({ user, handleLogout }) {
             <li>
               <Link
                 to="/tableros"
-                className={location.pathname === "/tableros" ? styles.active : ""}
+                className={
+                  location.pathname === "/tableros" ? styles.active : ""
+                }
               >
                 Tableros
               </Link>
@@ -157,6 +163,9 @@ function Navbar({ user, handleLogout }) {
             </div>
             {dropdownOpen && (
               <div className={styles["dropdown-menu"]}>
+                <Link to="/cambiar-password" className={styles["dropdown-link"]}>
+                  Cambiar Contraseña
+                </Link>
                 <button onClick={handleLogoutAndCloseMenu}>
                   Cerrar sesión
                 </button>
