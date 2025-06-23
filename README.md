@@ -15,6 +15,6 @@ Abre [http://localhost:3000](http://localhost:3000) para verla en tu navegador.
 La página se recargará cuando realices cambios.\
 También puedes ver errores de lint en la consola.
 
-### `npm run dev` (Backend)
+### Backend
 
-Desde la carpeta del backend, ejecuta este comando para iniciar el servidor en modo de desarrollo. La base de dato se iniciará en el puerto 3001 (Ajustado en el archivo index.js)
+Para ejecutar el back, se debe prender la VM de GCP. Esta tiene PM2, por lo tanto, no se debe hacer ningún otro paso.
