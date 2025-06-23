@@ -324,6 +324,50 @@ app.post("/login", (req, res) => {
   });
 });
 
+// Ruta para cambiar contraseña
+app.put("/cambiar-password", authenticateToken, (req, res) => {
+  const { passwordActual, passwordNueva } = req.body;
+  const { mail } = req.user; // Obtenemos el email del token
+
+  if (!passwordActual || !passwordNueva) {
+    return res.status(400).json({ 
+      error: "Contraseña actual y nueva contraseña son requeridas" 
+    });
+  }
+
+  if (passwordNueva.length < 6) {
+    return res.status(400).json({ 
+      error: "La nueva contraseña debe tener al menos 6 caracteres" 
+    });
+  }
+
+  // verificar que la contraseña actual sea correcta
+  const queryVerificar = "SELECT * FROM usuarios WHERE mail = ? AND password = ?";
+  db.get(queryVerificar, [mail, passwordActual], (err, row) => {
+    if (err) {
+      return res.status(500).json({ error: "Error al verificar la contraseña actual" });
+    }
+
+    if (!row) {
+      return res.status(401).json({ error: "La contraseña actual es incorrecta" });
+    }
+
+    // si la contraseña actual es correcta, actualizamos a la nueva
+    const queryActualizar = "UPDATE usuarios SET password = ? WHERE mail = ?";
+    db.run(queryActualizar, [passwordNueva, mail], function (err) {
+      if (err) {
+        return res.status(500).json({ error: "Error al actualizar la contraseña" });
+      }
+
+      if (this.changes === 0) {
+        return res.status(404).json({ error: "Usuario no encontrado" });
+      }
+
+      res.status(200).json({ message: "Contraseña actualizada correctamente" });
+    });
+  });
+});
+
 const programaciones = []; // En memoria, para pruebas. Usa DB en producción.
 
 app.post("/programar-mensaje", (req, res) => {

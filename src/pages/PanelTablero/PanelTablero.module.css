@@ -1464,3 +1464,37 @@
     align-items: center;
   }
 }
+
+/* Nuevos estilos para inputs de tipo date */
+input[type="date"] {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--color-input-borde);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 1rem;
+  background: var(--color-input);
+  color: var(--color-texto);
+  transition: border 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+  outline: none;
+}
+
+input[type="date"]:focus {
+  border-color: var(--color-primario);
+  box-shadow: 0 0 0 3px rgba(204, 0, 0, 0.12);
+}
+
+input[type="date"]::-webkit-input-placeholder {
+  color: var(--color-texto-secundario);
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(34%) sepia(99%) saturate(7492%) hue-rotate(356deg) brightness(95%) contrast(105%);
+  cursor: pointer;
+  transition: filter 0.2s;
+}
+
+input[type="date"]:hover::-webkit-calendar-picker-indicator {
+  filter: invert(20%) sepia(99%) saturate(7492%) hue-rotate(356deg) brightness(90%) contrast(105%);
+}
