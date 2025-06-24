@@ -163,13 +163,39 @@
   transform: translateY(-2px);
 }
 
-.modal-footer {
+.modal-footer,
+.tarjeta-footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
+  align-items: center;
   gap: 1rem;
   padding-top: 1.5rem;
   border-top: 1px solid #f3f4f6;
   background: transparent;
+}
+
+.modal-footer .boton,
+.tarjeta-footer .boton {
+  flex: 0 0 auto;
+  min-width: 120px;
+  width: auto;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.botones-programado {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.botones-programado .boton {
+  flex: 0 0 auto;
+  min-width: 100px;
+  width: auto;
 }
 
 @keyframes popupEntrada {
@@ -346,8 +372,10 @@
 
 .tarjeta-footer {
   display: flex;
+  justify-content: center; /* Centra los botones horizontalmente */
   gap: 1rem;
-  margin-top: auto;
+  padding-top: 1.5rem;
+  border-top: 1px solid #f3f4f6;
 }
 
 .indicador-estado {

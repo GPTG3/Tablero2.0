@@ -368,8 +368,6 @@ app.put("/cambiar-password", authenticateToken, (req, res) => {
   });
 });
 
-const programaciones = []; // En memoria, para pruebas. Usa DB en producción.
-
 app.post("/programar-mensaje", (req, res) => {
   const { profesor, mensaje, fecha, hora, color } = req.body;
   if (!profesor || !mensaje || !fecha || !hora) {
@@ -386,39 +384,62 @@ app.post("/programar-mensaje", (req, res) => {
 // Ruta para obtener los mensajes programados
 app.get("/programar-mensaje", (req, res) => {
   const { profesor } = req.query;
-
   if (!profesor) {
     return res.status(400).json({ error: "El profesor es requerido" });
   }
-
-  const mensajesProfesor = programaciones.filter(
-    (p) => p.profesor === profesor
+  db.all(
+    "SELECT mensaje, fecha, hora, color FROM programaciones WHERE profesor = ? AND enviado = 0 ORDER BY fecha, hora",
+    [profesor],
+    (err, rows) => {
+      if (err) {
+        return res.status(500).json({ error: "Error al obtener programaciones" });
+      }
+      res.json(rows);
+    }
   );
-  res.json(mensajesProfesor);
 });
 
 // Ruta para eliminar una programación
 app.delete("/programar-mensaje", (req, res) => {
   const { profesor, mensaje, hora } = req.body;
-
-  console.log("Las programaciones actuales son:", programaciones);
-
   if (!profesor || !mensaje || !hora) {
     return res.status(400).json({ error: "Faltan datos requeridos" });
   }
-
-  const index = programaciones.findIndex(
-    (p) => p.profesor === profesor && p.mensaje === mensaje && p.hora === hora
+  db.run(
+    "DELETE FROM programaciones WHERE profesor = ? AND mensaje = ? AND hora = ? AND enviado = 0",
+    [profesor, mensaje, hora],
+    function (err) {
+      if (err) {
+        return res.status(500).json({ error: "Error al eliminar la programación" });
+      }
+      if (this.changes === 0) {
+        return res.status(404).json({ error: "Programación no encontrada" });
+      }
+      res.json({ message: "Programación eliminada" });
+    }
   );
-
-  if (index === -1) {
-    return res.status(404).json({ error: "Programación no encontrada" });
-  }
-
-  programaciones.splice(index, 1);
-  res.json({ message: "Programación eliminada" });
 });
 
+// Editar mensaje programado
+app.put("/programar-mensaje", (req, res) => {
+  const { profesor, mensajeOriginal, horaOriginal, mensajeNuevo, colorNuevo } = req.body;
+  if (!profesor || !mensajeOriginal || !horaOriginal || !mensajeNuevo || !colorNuevo) {
+    return res.status(400).json({ error: "Faltan datos requeridos" });
+  }
+  db.run(
+    "UPDATE programaciones SET mensaje = ?, color = ? WHERE profesor = ? AND mensaje = ? AND hora = ? AND enviado = 0",
+    [mensajeNuevo, colorNuevo, profesor, mensajeOriginal, horaOriginal],
+    function (err) {
+      if (err) {
+        return res.status(500).json({ error: "Error al editar la programación" });
+      }
+      if (this.changes === 0) {
+        return res.status(404).json({ error: "Programación no encontrada" });
+      }
+      res.json({ message: "Programación editada" });
+    }
+  );
+});
 // Intervalo para enviar mensajes programados
 setInterval(() => {
   const ahora = new Date();

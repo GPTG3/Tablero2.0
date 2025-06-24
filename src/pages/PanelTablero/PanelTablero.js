@@ -24,6 +24,10 @@ const PanelTablero = () => {
   const [mensajeProgramado, setMensajeProgramado] = useState("");
   const [horaProgramada, setHoraProgramada] = useState("");
   const [fechaProgramada, setFechaProgramada] = useState("");
+  const [mensajesProgramados, setMensajesProgramados] = useState([]);
+  const [editandoMensaje, setEditandoMensaje] = useState(null); // {mensaje, hora, color}
+  const [nuevoMensaje, setNuevoMensaje] = useState("");
+  const [nuevoColor, setNuevoColor] = useState("#CC0000");
 
   const token = localStorage.getItem("token");
   const profesor = token ? jwtDecode(token).mail : null;
@@ -107,6 +111,25 @@ const PanelTablero = () => {
 
     fetchEstados();
   }, [profesor]);
+
+  // Obtener mensajes programados al montar y cuando se programe uno nuevo
+  useEffect(() => {
+    if (!profesor) return;
+    const fetchMensajesProgramados = async () => {
+      try {
+        const res = await fetch(
+          `${BACKEND_URL}/programar-mensaje?profesor=${profesor}`
+        );
+        if (res.ok) {
+          const data = await res.json();
+          setMensajesProgramados(Array.isArray(data) ? data : []);
+        }
+      } catch {
+        setMensajesProgramados([]);
+      }
+    };
+    fetchMensajesProgramados();
+  }, [profesor, cargando]); // recarga cuando cargando cambia (tras programar/eliminar)
 
   const manejarCambioMensaje = (e) => setMensaje(e.target.value);
   const manejarCambioEstado = (e) => setEstado(e.target.value);
@@ -319,6 +342,73 @@ const PanelTablero = () => {
       document.body.style.overflow = "";
     };
   }, [modalAbierto, modalEliminarAbierto]);
+
+  // Eliminar mensaje programado
+  const eliminarMensajeProgramado = async (mensaje, hora) => {
+    setCargando(true);
+    try {
+      const res = await fetch(`${BACKEND_URL}/programar-mensaje`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ profesor, mensaje, hora }),
+      });
+      if (res.ok) {
+        setMensajesProgramados((prev) =>
+          prev.filter((m) => !(m.mensaje === mensaje && m.hora === hora))
+        );
+        mostrarNotificacion("Mensaje programado eliminado", "exito");
+      } else {
+        mostrarNotificacion("No se pudo eliminar", "error");
+      }
+    } catch {
+      mostrarNotificacion("Error de conexión", "error");
+    } finally {
+      setCargando(false);
+    }
+  };
+
+  // Al hacer clic en "Editar"
+  const abrirEdicionMensaje = (m) => {
+    setEditandoMensaje(m);
+    setNuevoMensaje(m.mensaje);
+    setNuevoColor(m.color);
+  };
+
+  // Guardar cambios
+  const guardarEdicionMensaje = async () => {
+    setCargando(true);
+    try {
+      const res = await fetch(`${BACKEND_URL}/programar-mensaje`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          profesor,
+          mensajeOriginal: editandoMensaje.mensaje,
+          horaOriginal: editandoMensaje.hora,
+          mensajeNuevo: nuevoMensaje,
+          colorNuevo: nuevoColor,
+        }),
+      });
+      if (res.ok) {
+        mostrarNotificacion("Mensaje programado editado", "exito");
+        setEditandoMensaje(null);
+        setMensajesProgramados((prev) =>
+          prev.map((m) =>
+            m.mensaje === editandoMensaje.mensaje && m.hora === editandoMensaje.hora
+              ? { ...m, mensaje: nuevoMensaje, color: nuevoColor }
+              : m
+          )
+        );
+      } else {
+        const error = await res.json();
+        mostrarNotificacion(error.error, "error");
+      }
+    } catch {
+      mostrarNotificacion("Error de conexión", "error");
+    } finally {
+      setCargando(false);
+    }
+  };
 
   return (
     <div className={styles["contenedor-principal"]}>
@@ -694,6 +784,51 @@ const PanelTablero = () => {
               </div>
             </div>
           </div>
+
+          <div className={styles["panel-columna"]}>
+            <div className={styles["tarjeta"]}>
+              <div className={styles["tarjeta-header"]}>
+                <h3>
+                  <span className={styles["campo-icono"]}>📅</span>
+                  Mensajes Programados
+                </h3>
+              </div>
+              {mensajesProgramados.length === 0 ? (
+                <div style={{ padding: "1rem", color: "#888" }}>
+                  No hay mensajes programados.
+                </div>
+              ) : (
+                <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+                  {mensajesProgramados.map((m, idx) => (
+                    <li key={idx} style={{ borderBottom: "1px solid #eee", padding: "0.5rem 0" }}>
+                      <div>
+                        <strong>{m.mensaje}</strong>
+                        <div style={{ fontSize: "0.95em", color: "#666" }}>
+                          {m.fecha} {m.hora} <span style={{ color: m.color }}>{m.color}</span>
+                        </div>
+                      </div>
+                      <div className={styles["botones-programado"]}>
+                        <button
+                          className={`${styles["boton"]} ${styles["boton-editar"]}`}
+                          onClick={() => abrirEdicionMensaje(m)}
+                          disabled={cargando}
+                        >
+                          Editar
+                        </button>
+                        <button
+                          className={`${styles["boton"]} ${styles["boton-eliminar"]}`}
+                          onClick={() => eliminarMensajeProgramado(m.mensaje, m.hora)}
+                          disabled={cargando}
+                        >
+                          Eliminar
+                        </button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -841,6 +976,81 @@ const PanelTablero = () => {
                 <span className={styles["boton-icono"]}>❌</span>
                 Cancelar
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal para edición de mensajes programados */}
+      {editandoMensaje && (
+        <div className={styles["modal-overlay"]}>
+          <div className={styles["modal"]}>
+            <div className={styles["modal-header"]}>
+              <span className={styles["modal-title"]}>Editar Mensaje Programado</span>
+              <button
+                className={styles["modal-close"]}
+                onClick={() => setEditandoMensaje(null)}
+                title="Cerrar"
+              >
+                ×
+              </button>
+            </div>
+            <div className={styles["modal-contenido"]}>
+              <div className={styles["campo-formulario"]}>
+                <label htmlFor="nuevo-mensaje">
+                  <span className={styles["campo-icono"]}>💬</span>
+                  Nuevo Mensaje:
+                </label>
+                <textarea
+                  id="nuevo-mensaje"
+                  value={nuevoMensaje}
+                  onChange={(e) => setNuevoMensaje(e.target.value)}
+                  placeholder="Escribe el nuevo mensaje..."
+                  rows="3"
+                  className={styles["input"]}
+                  required
+                />
+              </div>
+              <div className={styles["campo-formulario"]}>
+                <label htmlFor="nuevo-color">
+                  <span className={styles["campo-icono"]}>🎨</span>
+                  Nuevo Color:
+                </label>
+                <div className={styles["color-picker-container"]}>
+                  <input
+                    type="color"
+                    id="nuevo-color"
+                    value={nuevoColor}
+                    onChange={(e) => setNuevoColor(e.target.value)}
+                    className={styles["color-picker"]}
+                  />
+                  <input
+                    type="text"
+                    value={nuevoColor}
+                    onChange={(e) => setNuevoColor(e.target.value)}
+                    className={styles["color-value-input"]}
+                    pattern="^#[0-9A-Fa-f]{6}$"
+                    title="Código de color hexadecimal (ej: #FF0000)"
+                  />
+                </div>
+              </div>
+
+              <div className={styles["modal-footer"]}>
+                <button
+                  className={`${styles["boton"]} ${styles["boton-guardar"]}`}
+                  onClick={guardarEdicionMensaje}
+                  disabled={cargando}
+                >
+                  Guardar Cambios
+                </button>
+                <button
+                  className={`${styles["boton"]} ${styles["boton-cancelar"]}`}
+                  onClick={() => setEditandoMensaje(null)}
+                  disabled={cargando}
+                >
+                  Cancelar
+                </button>
+              </div>
             </div>
           </div>
         </div>
